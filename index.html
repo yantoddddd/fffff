@@ -62,7 +62,7 @@
             color: #333;
         }
 
-        input, select {
+        input {
             width: 100%;
             padding: 15px;
             border: 2px solid #e1e5e9;
@@ -71,23 +71,28 @@
             transition: all 0.3s ease;
         }
 
-        input:focus, select:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
         .btn-generate {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 18px 40px;
+            padding: 18px;
             border: none;
             border-radius: 12px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
         }
 
         .btn-generate:hover {
@@ -101,6 +106,16 @@
             transform: none;
         }
 
+        .btn-cancel {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 65, 108, 0.4);
+        }
+
         .qris-result {
             text-align: center;
             padding: 30px;
@@ -109,6 +124,15 @@
             color: white;
             display: none;
             margin-top: 30px;
+            position: relative;
+        }
+
+        .status-paid {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf) !important;
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
         }
 
         .qris-image {
@@ -134,7 +158,7 @@
             font-size: 14px;
         }
 
-        .btn-copy, .btn-download {
+        .btn-copy, .btn-download, .btn-status {
             background: rgba(255,255,255,0.9);
             color: #333;
             border: none;
@@ -146,7 +170,7 @@
             transition: all 0.3s ease;
         }
 
-        .btn-copy:hover, .btn-download:hover {
+        .btn-copy:hover, .btn-download:hover, .btn-status:hover {
             background: white;
             transform: translateY(-2px);
         }
@@ -189,15 +213,30 @@
             padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             border-left: 5px solid #667eea;
+            position: relative;
         }
 
+        .status-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-pending { background: #f39c12; color: white; }
+        .status-paid { background: #27ae60; color: white; }
+        .status-cancelled { background: #e74c3c; color: white; }
+        .status-expired { background: #95a5a6; color: white; }
+
         @media (max-width: 768px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+            }
             .content {
                 padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2em;
             }
         }
     </style>
@@ -215,33 +254,31 @@
                     <label for="amount">Nominal (Rp)</label>
                     <input type="number" id="amount" min="1000" placeholder="Masukkan nominal minimal Rp1.000" required>
                 </div>
-                
-                <div class="form-group">
-                    <label for="paymentRef">Payment Reference (Opsional)</label>
-                    <input type="text" id="paymentRef" placeholder="Order-12345">
-                </div>
 
-                <div class="form-group">
-                    <label for="returnUrl">Return URL (Opsional)</label>
-                    <input type="url" id="returnUrl" placeholder="https://yoursite.com/thanks">
+                <div class="btn-group">
+                    <button class="btn-generate" onclick="generateQRIS()">
+                        🎫 Generate QRIS
+                    </button>
+                    <button class="btn-generate btn-cancel" onclick="cancelCurrentQRIS()" id="btnCancel" style="display: none;">
+                        ❌ Batalkan Pesanan
+                    </button>
                 </div>
-
-                <button class="btn-generate" onclick="generateQRIS()">
-                    🎫 Generate QRIS
-                </button>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Generating QRIS...</p>
+                <p id="loadingText">Generating QRIS...</p>
             </div>
 
             <div class="qris-result" id="qrisResult">
-                <h3>✅ QRIS Berhasil Dibuat!</h3>
+                <h3 id="resultTitle">✅ QRIS Berhasil Dibuat!</h3>
                 <img id="qrisImage" class="qris-image" alt="QRIS Code">
                 <div class="qris-info" id="qrisInfo"></div>
-                <button class="btn-copy" onclick="copyQRIS()">📋 Copy Link</button>
-                <button class="btn-download" onclick="downloadQRIS()">⬇️ Download</button>
+                <div>
+                    <button class="btn-copy" onclick="copyQRIS()">📋 Copy Link</button>
+                    <button class="btn-download" onclick="downloadQRIS()">⬇️ Download</button>
+                    <button class="btn-status" onclick="checkStatusNow()">🔄 Cek Status</button>
+                </div>
             </div>
 
             <div class="history-section">
@@ -257,7 +294,6 @@
         let currentQRIS = null;
         let history = JSON.parse(localStorage.getItem('qrisHistory')) || [];
 
-        // Format Rupiah
         function formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -266,38 +302,33 @@
             }).format(angka);
         }
 
-        // Generate QRIS
         async function generateQRIS() {
             const amount = parseInt(document.getElementById('amount').value);
-            const paymentRef = document.getElementById('paymentRef').value;
-            const returnUrl = document.getElementById('returnUrl').value;
 
             if (!amount || amount < 1000) {
                 alert('Minimal nominal Rp1.000!');
                 return;
             }
 
-            const btn = document.querySelector('.btn-generate');
+            const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
+            const btnCancel = document.getElementById('btnCancel');
             const loading = document.getElementById('loading');
             const result = document.getElementById('qrisResult');
 
-            btn.disabled = true;
-            btn.textContent = '⏳ Menghasilkan...';
+            btnGenerate.disabled = true;
+            btnCancel.style.display = 'none';
+            document.getElementById('loadingText').textContent = 'Generating QRIS...';
             loading.style.display = 'block';
             result.style.display = 'none';
 
             try {
-                const body = { amount };
-                if (paymentRef) body.payment_reference = paymentRef;
-                if (returnUrl) body.return_url = returnUrl;
-
                 const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
                     method: 'POST',
                     headers: {
                         'X-API-Token': API_TOKEN,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ amount })
                 });
 
                 const data = await response.json();
@@ -306,38 +337,115 @@
                     currentQRIS = data.data;
                     displayQRIS(data.data);
                     saveToHistory(data.data);
+                    btnCancel.style.display = 'block';
+                    startStatusCheck();
                 } else {
                     throw new Error(data.message || 'Gagal generate QRIS');
                 }
             } catch (error) {
                 alert('Error: ' + error.message);
             } finally {
-                btn.disabled = false;
-                btn.textContent = '🎫 Generate QRIS';
+                btnGenerate.disabled = false;
                 loading.style.display = 'none';
             }
         }
 
-        // Display QRIS
         function displayQRIS(qrisData) {
             const result = document.getElementById('qrisResult');
             const image = document.getElementById('qrisImage');
             const info = document.getElementById('qrisInfo');
+            const title = document.getElementById('resultTitle');
 
             image.src = qrisData.qris_image_url;
-            image.onload = () => {
-                result.style.display = 'block';
-            };
+            title.textContent = '✅ QRIS Berhasil Dibuat!';
+            result.className = 'qris-result'; // Reset classes
 
             info.innerHTML = `
                 <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
                 <div class="info-item">🆔 ${qrisData.qris_id}</div>
                 <div class="info-item">⏰ ${new Date(qrisData.expired_at).toLocaleString('id-ID')}</div>
-                ${qrisData.payment_reference ? `<div class="info-item">📝 ${qrisData.payment_reference}</div>` : ''}
             `;
+
+            result.style.display = 'block';
         }
 
-        // Copy QRIS URL
+        async function cancelCurrentQRIS() {
+            if (!currentQRIS) return;
+
+            if (confirm(`Batalkan QRIS ${currentQRIS.qris_id}?`)) {
+                currentQRIS.status = 'cancelled';
+                document.getElementById('qrisResult').classList.add('status-cancelled');
+                document.getElementById('resultTitle').textContent = '❌ Pesanan Dibatalkan!';
+                document.getElementById('btnCancel').style.display = 'none';
+                
+                saveToHistory(currentQRIS);
+                alert('✅ QRIS berhasil dibatalkan!');
+                stopStatusCheck();
+            }
+        }
+
+        let statusInterval;
+        function startStatusCheck() {
+            stopStatusCheck();
+            statusInterval = setInterval(checkStatus, 5000);
+        }
+
+        function stopStatusCheck() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+
+        async function checkStatus() {
+            if (!currentQRIS) return;
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/api/payment/qris/${currentQRIS.qris_id}/status`,
+                    { headers: { 'X-API-Token': API_TOKEN } }
+                );
+                const data = await response.json();
+
+                if (data.status && data.status !== 'pending') {
+                    currentQRIS.status = data.status;
+                    updateStatusDisplay(data.status);
+                    stopStatusCheck();
+                }
+            } catch (error) {
+                console.log('Status check failed:', error);
+            }
+        }
+
+        async function checkStatusNow() {
+            await checkStatus();
+        }
+
+        function updateStatusDisplay(status) {
+            const result = document.getElementById('qrisResult');
+            const title = document.getElementById('resultTitle');
+
+            result.classList.remove('status-paid', 'status-cancelled');
+            
+            switch(status) {
+                case 'paid':
+                    result.classList.add('status-paid');
+                    title.textContent = '🎉 PEMBAYARAN SUKSES!';
+                    document.getElementById('btnCancel').style.display = 'none';
+                    break;
+                case 'expired':
+                    title.textContent = '⏰ QRIS KADALUARSA';
+                    document.getElementById('btnCancel').style.display = 'none';
+                    break;
+                case 'cancelled':
+                    result.classList.add('status-cancelled');
+                    title.textContent = '❌ QRIS DIBATALKAN';
+                    break;
+            }
+
+            saveToHistory(currentQRIS);
+        }
+
         function copyQRIS() {
             if (currentQRIS) {
                 navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
@@ -346,7 +454,6 @@
             }
         }
 
-        // Download QRIS
         function downloadQRIS() {
             if (currentQRIS) {
                 const link = document.createElement('a');
@@ -356,51 +463,42 @@
             }
         }
 
-        // Save to History
         function saveToHistory(qrisData) {
             history.unshift({
                 ...qrisData,
+                local_status: qrisData.status || 'pending',
                 created_at: new Date().toISOString()
             });
             
-            if (history.length > 20) {
-                history = history.slice(0, 20);
-            }
-            
+            if (history.length > 20) history = history.slice(0, 20);
             localStorage.setItem('qrisHistory', JSON.stringify(history));
             displayHistory();
         }
 
-        // Display History
         function displayHistory() {
             const grid = document.getElementById('historyGrid');
             grid.innerHTML = history.map(item => `
                 <div class="history-item">
-                    <div style="font-size: 24px; margin-bottom: 15px;">${item.status === 'paid' ? '✅' : '⏳'}</div>
+                    <div class="status-badge status-${item.local_status || 'pending'}">
+                        ${item.local_status?.toUpperCase() || 'PENDING'}
+                    </div>
                     <img src="${item.qris_image_url}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
                     <div><strong>${formatRupiah(item.amount)}</strong></div>
                     <div style="font-size: 12px; color: #666;">${item.qris_id}</div>
-                    <div style="font-size: 12px; color: #666;">${new Date(item.created_at || item.expired_at).toLocaleDateString('id-ID')}</div>
+                    <div style="font-size: 12px; color: #666;">${new Date(item.created_at).toLocaleDateString('id-ID')}</div>
                 </div>
             `).join('');
         }
 
-        // Load history on page load
+        // Init
         displayHistory();
-
-        // Auto-format amount
         document.getElementById('amount').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
-            if (value) {
-                e.target.value = parseInt(value);
-            }
+            if (value) e.target.value = parseInt(value);
         });
 
-        // Enter key support
         document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                generateQRIS();
-            }
+            if (e.key === 'Enter') generateQRIS();
         });
     </script>
 </body>
