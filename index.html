@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QRIS Generator Dinamis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 18px 40px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-generate:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .qris-result {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 15px;
+            color: white;
+            display: none;
+            margin-top: 30px;
+        }
+
+        .qris-image {
+            max-width: 300px;
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            margin: 20px auto;
+            display: block;
+        }
+
+        .qris-info {
+            margin: 20px 0;
+        }
+
+        .info-item {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 25px;
+            font-size: 14px;
+        }
+
+        .btn-copy, .btn-download {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-copy:hover, .btn-download:hover {
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .history-section {
+            margin-top: 40px;
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-left: 5px solid #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 QRIS Generator</h1>
+            <p>Generate QRIS Dinamis - Minimal Rp1.000</p>
+        </div>
+
+        <div class="content">
+            <div class="form-section">
+                <div class="form-group">
+                    <label for="amount">Nominal (Rp)</label>
+                    <input type="number" id="amount" min="1000" placeholder="Masukkan nominal minimal Rp1.000" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="paymentRef">Payment Reference (Opsional)</label>
+                    <input type="text" id="paymentRef" placeholder="Order-12345">
+                </div>
+
+                <div class="form-group">
+                    <label for="returnUrl">Return URL (Opsional)</label>
+                    <input type="url" id="returnUrl" placeholder="https://yoursite.com/thanks">
+                </div>
+
+                <button class="btn-generate" onclick="generateQRIS()">
+                    🎫 Generate QRIS
+                </button>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Generating QRIS...</p>
+            </div>
+
+            <div class="qris-result" id="qrisResult">
+                <h3>✅ QRIS Berhasil Dibuat!</h3>
+                <img id="qrisImage" class="qris-image" alt="QRIS Code">
+                <div class="qris-info" id="qrisInfo"></div>
+                <button class="btn-copy" onclick="copyQRIS()">📋 Copy Link</button>
+                <button class="btn-download" onclick="downloadQRIS()">⬇️ Download</button>
+            </div>
+
+            <div class="history-section">
+                <h3 style="margin-bottom: 20px; color: #333;">📋 Riwayat QRIS</h3>
+                <div class="history-grid" id="historyGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
+        const API_URL = 'https://api.qrispy.id';
+        let currentQRIS = null;
+        let history = JSON.parse(localStorage.getItem('qrisHistory')) || [];
+
+        // Format Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+
+        // Generate QRIS
+        async function generateQRIS() {
+            const amount = parseInt(document.getElementById('amount').value);
+            const paymentRef = document.getElementById('paymentRef').value;
+            const returnUrl = document.getElementById('returnUrl').value;
+
+            if (!amount || amount < 1000) {
+                alert('Minimal nominal Rp1.000!');
+                return;
+            }
+
+            const btn = document.querySelector('.btn-generate');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('qrisResult');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Menghasilkan...';
+            loading.style.display = 'block';
+            result.style.display = 'none';
+
+            try {
+                const body = { amount };
+                if (paymentRef) body.payment_reference = paymentRef;
+                if (returnUrl) body.return_url = returnUrl;
+
+                const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Token': API_TOKEN,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+
+                const data = await response.json();
+
+                if (data.status === 'success') {
+                    currentQRIS = data.data;
+                    displayQRIS(data.data);
+                    saveToHistory(data.data);
+                } else {
+                    throw new Error(data.message || 'Gagal generate QRIS');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎫 Generate QRIS';
+                loading.style.display = 'none';
+            }
+        }
+
+        // Display QRIS
+        function displayQRIS(qrisData) {
+            const result = document.getElementById('qrisResult');
+            const image = document.getElementById('qrisImage');
+            const info = document.getElementById('qrisInfo');
+
+            image.src = qrisData.qris_image_url;
+            image.onload = () => {
+                result.style.display = 'block';
+            };
+
+            info.innerHTML = `
+                <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
+                <div class="info-item">🆔 ${qrisData.qris_id}</div>
+                <div class="info-item">⏰ ${new Date(qrisData.expired_at).toLocaleString('id-ID')}</div>
+                ${qrisData.payment_reference ? `<div class="info-item">📝 ${qrisData.payment_reference}</div>` : ''}
+            `;
+        }
+
+        // Copy QRIS URL
+        function copyQRIS() {
+            if (currentQRIS) {
+                navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
+                    alert('✅ Link QRIS berhasil dicopy!');
+                });
+            }
+        }
+
+        // Download QRIS
+        function downloadQRIS() {
+            if (currentQRIS) {
+                const link = document.createElement('a');
+                link.href = currentQRIS.qris_image_url;
+                link.download = `qris-${currentQRIS.qris_id}.png`;
+                link.click();
+            }
+        }
+
+        // Save to History
+        function saveToHistory(qrisData) {
+            history.unshift({
+                ...qrisData,
+                created_at: new Date().toISOString()
+            });
+            
+            if (history.length > 20) {
+                history = history.slice(0, 20);
+            }
+            
+            localStorage.setItem('qrisHistory', JSON.stringify(history));
+            displayHistory();
+        }
+
+        // Display History
+        function displayHistory() {
+            const grid = document.getElementById('historyGrid');
+            grid.innerHTML = history.map(item => `
+                <div class="history-item">
+                    <div style="font-size: 24px; margin-bottom: 15px;">${item.status === 'paid' ? '✅' : '⏳'}</div>
+                    <img src="${item.qris_image_url}" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">
+                    <div><strong>${formatRupiah(item.amount)}</strong></div>
+                    <div style="font-size: 12px; color: #666;">${item.qris_id}</div>
+                    <div style="font-size: 12px; color: #666;">${new Date(item.created_at || item.expired_at).toLocaleDateString('id-ID')}</div>
+                </div>
+            `).join('');
+        }
+
+        // Load history on page load
+        displayHistory();
+
+        // Auto-format amount
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value) {
+                e.target.value = parseInt(value);
+            }
+        });
+
+        // Enter key support
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateQRIS();
+            }
+        });
+    </script>
+</body>
+</html>
