@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QRIS Top Up Game - SenPay</title>
+    <title>QRIS Generator Dinamis</title>
     <style>
         * {
             margin: 0;
@@ -19,11 +19,11 @@
         }
 
         .container {
-            max-width: 450px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
-            border-radius: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
             overflow: hidden;
         }
 
@@ -35,25 +35,23 @@
         }
 
         .header h1 {
-            font-size: 2.2em;
+            font-size: 2.5em;
             margin-bottom: 10px;
         }
 
         .content {
-            padding: 30px;
+            padding: 40px;
         }
 
-        /*** QRIS GENERATOR ***/
-        .qris-section {
+        .form-section {
             background: #f8f9fa;
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
         }
 
         label {
@@ -61,139 +59,159 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #333;
+            font-size: 16px;
         }
 
         input {
             width: 100%;
-            padding: 15px;
+            padding: 18px;
             border: 2px solid #e1e5e9;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 18px;
             transition: all 0.3s ease;
         }
 
         input:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
-        .btn-generate {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 18px;
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .btn-generate, .btn-cancel {
+            padding: 20px;
             border: none;
             border-radius: 15px;
             font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            width: 100%;
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
-        .btn-generate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-generate:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        /*** TOP UP PRODUCTS ***/
-        .topup-section {
-            margin-top: 30px;
-            padding: 25px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            border-radius: 20px;
+        .btn-generate {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
 
-        .topup-section h3 {
-            margin-bottom: 20px;
-            text-align: center;
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
         }
 
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px;
+        .btn-cancel {
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            color: white;
         }
 
-        .product-card {
-            background: rgba(255,255,255,0.2);
-            border: 2px solid transparent;
-            border-radius: 15px;
-            padding: 20px 10px;
+        .btn-cancel:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(255, 65, 108, 0.4);
+        }
+
+        .btn-generate:disabled, .btn-cancel:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .qris-result {
             text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            color: white;
+            display: none;
+            margin-top: 30px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .status-paid {
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf) !important;
+            animation: celebrate 0.6s ease-in-out;
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
+        }
+
+        @keyframes celebrate {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .qris-image {
+            max-width: 320px;
+            width: 100%;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            margin: 25px auto;
+            display: block;
+        }
+
+        .qris-info {
+            margin: 25px 0;
+        }
+
+        .info-item {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            padding: 12px 25px;
+            margin: 8px;
+            border-radius: 30px;
+            font-size: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        .action-buttons {
+            margin-top: 25px;
+        }
+
+        .btn-action {
+            background: rgba(255,255,255,0.95);
+            color: #333;
+            border: none;
+            padding: 12px 25px;
+            margin: 8px;
+            border-radius: 30px;
             cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
 
-        .product-card:hover, .product-card.active {
-            border-color: white;
-            background: rgba(255,255,255,0.3);
-            transform: translateY(-5px);
-        }
-
-        .product-icon {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        /*** RESULT ***/
-        .result {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
-            border-radius: 20px;
-            color: white;
-            display: none;
-            margin-top: 25px;
-        }
-
-        .qris-img {
-            max-width: 300px;
-            width: 100%;
-            border-radius: 15px;
-            margin: 20px auto;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-        }
-
-        .btn-copy {
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            border: none;
-            padding: 12px 25px;
-            margin: 10px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-copy:hover {
+        .btn-action:hover {
             background: white;
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .loading {
             display: none;
             text-align: center;
-            padding: 30px;
+            padding: 40px;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
         }
 
         @keyframes spin {
@@ -201,9 +219,17 @@
             100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 480px) {
-            body { padding: 10px; }
-            .content { padding: 20px; }
+        @media (max-width: 768px) {
+            .btn-group {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .content {
+                padding: 25px;
+            }
+            .header h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
@@ -211,174 +237,234 @@
     <div class="container">
         <div class="header">
             <h1>🚀 QRIS Generator</h1>
-            <p>SenPay Top Up Ready - Minimal Rp1.000</p>
+            <p>Generate QRIS Dinamis - Minimal Rp1.000</p>
         </div>
 
         <div class="content">
-            <!-- QRIS GENERATOR -->
-            <div class="qris-section">
-                <h3>🎫 Generate QRIS</h3>
+            <div class="form-section">
                 <div class="form-group">
                     <label for="amount">💰 Nominal (Rp)</label>
-                    <input type="number" id="amount" min="1000" placeholder="10000">
+                    <input type="number" id="amount" min="1000" placeholder="Masukkan nominal minimal Rp1.000" required>
                 </div>
-                <div class="form-group">
-                    <label for="reference">📝 Reference (Opsional)</label>
-                    <input type="text" id="reference" placeholder="ML#Sajaad123">
-                </div>
-                <button class="btn-generate" onclick="generateQRIS()">
-                    🎫 BUAT QRIS
-                </button>
-            </div>
 
-            <!-- TOP UP PRODUCTS -->
-            <div class="topup-section">
-                <h3>🎮 Quick Top Up</h3>
-                <div class="product-grid">
-                    <div class="product-card" onclick="quickTopup(17000, 'ML Diamond 17')">
-                        <div class="product-icon">⚔️</div>
-                        <div>ML 17</div>
-                        <div>Rp 17.000</div>
-                    </div>
-                    <div class="product-card" onclick="quickTopup(35000, 'ML Diamond 38')">
-                        <div class="product-icon">⚔️</div>
-                        <div>ML 38</div>
-                        <div>Rp 35.000</div>
-                    </div>
-                    <div class="product-card" onclick="quickTopup(65000, 'ML Diamond 73')">
-                        <div class="product-icon">⚔️</div>
-                        <div>ML 73</div>
-                        <div>Rp 65.000</div>
-                    </div>
-                    <div class="product-card" onclick="quickTopup(15000, 'FF Diamond 38')">
-                        <div class="product-icon">🔫</div>
-                        <div>FF 38</div>
-                        <div>Rp 15.000</div>
-                    </div>
+                <div class="btn-group">
+                    <button class="btn-generate" onclick="generateQRIS()">
+                        <span>🎫 Generate QRIS</span>
+                    </button>
+                    <button class="btn-cancel" onclick="cancelCurrentQRIS()" id="btnCancel" style="display: none;">
+                        <span>❌ Batalkan Pesanan</span>
+                    </button>
                 </div>
             </div>
 
-            <!-- LOADING -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p>Generating QRIS...</p>
+                <p id="loadingText">Generating QRIS...</p>
             </div>
 
-            <!-- RESULT -->
-            <div class="result" id="result">
-                <h3 id="resultTitle">✅ QRIS Siap!</h3>
-                <img id="qrisImg" class="qris-img" alt="QRIS">
-                <div id="qrisInfo"></div>
-                <button class="btn-copy" onclick="copyQRIS()">📋 Copy Link</button>
-                <button class="btn-copy" onclick="downloadQRIS()">⬇️ Download</button>
+            <div class="qris-result" id="qrisResult">
+                <h2 id="resultTitle">✅ QRIS Berhasil Dibuat!</h2>
+                <img id="qrisImage" class="qris-image" alt="QRIS Code">
+                <div class="qris-info" id="qrisInfo"></div>
+                
+                <div class="action-buttons">
+                    <button class="btn-action" onclick="copyQRIS()">
+                        📋 Copy Link QRIS
+                    </button>
+                    <button class="btn-action" onclick="downloadQRIS()">
+                        ⬇️ Download PNG
+                    </button>
+                    <button class="btn-action" onclick="checkStatusNow()">
+                        🔄 Cek Status
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        const QRIS_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
-        const SENPAY_TOKEN = '74|KYyrEsJM6IIz8YTgmtzQtbA5pytpVvsPvVpuFqr4022d9677';
+        const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
+        const API_URL = 'https://api.qrispy.id';
         let currentQRIS = null;
 
-        function formatRupiah(num) {
-            return new Intl.NumberFormat('id-ID').format(num);
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
         }
 
         async function generateQRIS() {
             const amount = parseInt(document.getElementById('amount').value);
-            const reference = document.getElementById('reference').value;
 
             if (!amount || amount < 1000) {
-                alert('Minimal Rp 1.000!');
+                alert('⚠️ Minimal nominal Rp1.000!');
                 return;
             }
 
-            const btn = event.target;
+            const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
+            const btnCancel = document.getElementById('btnCancel');
             const loading = document.getElementById('loading');
-            const result = document.getElementById('result');
+            const result = document.getElementById('qrisResult');
 
-            btn.disabled = true;
-            btn.textContent = '⏳ Loading...';
+            btnGenerate.disabled = true;
+            btnCancel.style.display = 'none';
+            document.getElementById('loadingText').textContent = '🎫 Generating QRIS...';
             loading.style.display = 'block';
             result.style.display = 'none';
 
             try {
-                const body = { amount };
-                if (reference) body.payment_reference = reference;
-
-                const response = await fetch('https://api.qrispy.id/api/payment/qris/generate', {
+                const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
                     method: 'POST',
                     headers: {
-                        'X-API-Token': QRIS_TOKEN,
+                        'X-API-Token': API_TOKEN,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({ amount })
                 });
 
                 const data = await response.json();
 
                 if (data.status === 'success') {
                     currentQRIS = data.data;
-                    showResult(data.data);
+                    displayQRIS(data.data);
+                    btnCancel.style.display = 'block';
+                    startStatusCheck();
                 } else {
-                    throw new Error(data.message || 'QRIS failed');
+                    throw new Error(data.message || 'Gagal generate QRIS');
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('❌ Error: ' + error.message);
             } finally {
-                btn.disabled = false;
-                btn.textContent = '🎫 BUAT QRIS';
+                btnGenerate.disabled = false;
                 loading.style.display = 'none';
             }
         }
 
-        function showResult(qrisData) {
-            document.getElementById('result').style.display = 'block';
-            document.getElementById('qrisImg').src = qrisData.qris_image_url;
-            document.getElementById('resultTitle').textContent = '✅ QRIS Siap Bayar!';
-            document.getElementById('qrisInfo').innerHTML = `
-                <div style="font-size: 24px; margin: 15px 0;">💰 ${formatRupiah(qrisData.amount)}</div>
-                <div style="background: rgba(255,255,255,0.3); padding: 10px 20px; border-radius: 25px; display: inline-block;">
-                    🆔 ${qrisData.qris_id}
-                </div>
-                <div style="margin-top: 15px; font-size: 14px; opacity: 0.9;">
-                    Expires: ${new Date(qrisData.expired_at).toLocaleString('id-ID')}
-                </div>
+        function displayQRIS(qrisData) {
+            const result = document.getElementById('qrisResult');
+            const image = document.getElementById('qrisImage');
+            const info = document.getElementById('qrisInfo');
+            const title = document.getElementById('resultTitle');
+
+            image.src = qrisData.qris_image_url;
+            title.textContent = '✅ QRIS Berhasil Dibuat!';
+            result.className = 'qris-result'; // Reset classes
+
+            info.innerHTML = `
+                <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
+                <div class="info-item">🆔 ${qrisData.qris_id}</div>
+                <div class="info-item">⏰ ${new Date(qrisData.expired_at).toLocaleString('id-ID')}</div>
             `;
-            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+
+            result.style.display = 'block';
+            image.scrollIntoView({ behavior: 'smooth' });
         }
 
-        function quickTopup(amount, reference) {
-            document.getElementById('amount').value = amount;
-            document.getElementById('reference').value = reference;
-            generateQRIS();
+        async function cancelCurrentQRIS() {
+            if (!currentQRIS) return;
+
+            if (confirm(`❌ Batalkan QRIS ${currentQRIS.qris_id}?\n\nNominal: ${formatRupiah(currentQRIS.amount)}`)) {
+                currentQRIS.status = 'cancelled';
+                document.getElementById('qrisResult').classList.add('status-cancelled');
+                document.getElementById('resultTitle').textContent = '❌ Pesanan Dibatalkan!';
+                document.getElementById('btnCancel').style.display = 'none';
+                stopStatusCheck();
+                alert('✅ QRIS berhasil dibatalkan!');
+            }
+        }
+
+        let statusInterval;
+        function startStatusCheck() {
+            stopStatusCheck();
+            statusInterval = setInterval(checkStatus, 5000);
+        }
+
+        function stopStatusCheck() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+                statusInterval = null;
+            }
+        }
+
+        async function checkStatus() {
+            if (!currentQRIS) return;
+
+            try {
+                const response = await fetch(
+                    `${API_URL}/api/payment/qris/${currentQRIS.qris_id}/status`,
+                    { headers: { 'X-API-Token': API_TOKEN } }
+                );
+                const data = await response.json();
+
+                if (data.status && data.status !== 'pending') {
+                    currentQRIS.status = data.status;
+                    updateStatusDisplay(data.status);
+                    stopStatusCheck();
+                }
+            } catch (error) {
+                console.log('Status check failed:', error);
+            }
+        }
+
+        async function checkStatusNow() {
+            document.getElementById('loadingText').textContent = '🔄 Checking status...';
+            document.getElementById('loading').style.display = 'block';
+            await checkStatus();
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function updateStatusDisplay(status) {
+            const result = document.getElementById('qrisResult');
+            const title = document.getElementById('resultTitle');
+
+            result.classList.remove('status-paid', 'status-cancelled');
+            
+            switch(status) {
+                case 'paid':
+                    result.classList.add('status-paid');
+                    title.textContent = '🎉 PEMBAYARAN SUKSES!';
+                    document.getElementById('btnCancel').style.display = 'none';
+                    break;
+                case 'expired':
+                    title.textContent = '⏰ QRIS KADALUARSA';
+                    document.getElementById('btnCancel').style.display = 'none';
+                    break;
+                case 'cancelled':
+                    result.classList.add('status-cancelled');
+                    title.textContent = '❌ QRIS DIBATALKAN';
+                    break;
+            }
         }
 
         function copyQRIS() {
             if (currentQRIS) {
                 navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
-                    alert('✅ Link QRIS copied!');
+                    alert('✅ Link QRIS berhasil dicopy!\n\n' + currentQRIS.qris_image_url);
                 });
             }
         }
 
         function downloadQRIS() {
             if (currentQRIS) {
-                const a = document.createElement('a');
-                a.href = currentQRIS.qris_image_url;
-                a.download = `qris-${currentQRIS.qris_id}.png`;
-                a.click();
+                const link = document.createElement('a');
+                link.href = currentQRIS.qris_image_url;
+                link.download = `qris-${currentQRIS.qris_id}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
         }
 
-        // Enter key support
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') generateQRIS();
+        // Init
+        document.getElementById('amount').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value) e.target.value = parseInt(value);
         });
 
-        // Auto format amount
-        document.getElementById('amount').addEventListener('input', (e) => {
-            e.target.value = e.target.value.replace(/\D/g, '');
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') generateQRIS();
         });
     </script>
 </body>
