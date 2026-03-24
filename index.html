@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QRIS Generator Dinamis</title>
+    <title>Top Up & Payment - QRIS Dinamis</title>
     <style>
         * {
             margin: 0;
@@ -15,15 +15,15 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            border-radius: 25px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
             overflow: hidden;
         }
 
@@ -35,23 +35,91 @@
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2.2em;
+            margin-bottom: 5px;
         }
 
         .content {
-            padding: 40px;
+            padding: 30px;
+        }
+
+        .category-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 5px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .product-card {
+            background: #f8f9fa;
+            border: 2px solid transparent;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .product-card:hover, .product-card.active {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.2);
+        }
+
+        .product-card img {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 8px;
+        }
+
+        .product-name {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
         }
 
         .form-section {
             background: #f8f9fa;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            padding: 25px;
+            border-radius: 20px;
+            margin-bottom: 20px;
         }
 
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         label {
@@ -59,43 +127,36 @@
             margin-bottom: 8px;
             font-weight: 600;
             color: #333;
-            font-size: 16px;
         }
 
-        input {
+        input, select {
             width: 100%;
-            padding: 18px;
+            padding: 15px;
             border: 2px solid #e1e5e9;
             border-radius: 12px;
-            font-size: 18px;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
 
-        input:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
         }
 
         .btn-group {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
         }
 
         .btn-generate, .btn-cancel {
-            padding: 20px;
+            padding: 18px;
             border: none;
             border-radius: 15px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .btn-generate {
@@ -104,8 +165,8 @@
         }
 
         .btn-generate:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
         }
 
         .btn-cancel {
@@ -113,122 +174,43 @@
             color: white;
         }
 
-        .btn-cancel:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(255, 65, 108, 0.4);
-        }
-
-        .btn-generate:disabled, .btn-cancel:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
         .qris-result {
             text-align: center;
-            padding: 40px;
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 30px;
+            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
             border-radius: 20px;
             color: white;
             display: none;
-            margin-top: 30px;
-            position: relative;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-        }
-
-        .status-paid {
-            background: linear-gradient(135deg, #56ab2f, #a8e6cf) !important;
-            animation: celebrate 0.6s ease-in-out;
-        }
-
-        .status-cancelled {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d) !important;
-        }
-
-        @keyframes celebrate {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            margin-top: 20px;
         }
 
         .qris-image {
-            max-width: 320px;
+            max-width: 280px;
             width: 100%;
-            height: auto;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            margin: 25px auto;
-            display: block;
-        }
-
-        .qris-info {
-            margin: 25px 0;
-        }
-
-        .info-item {
-            display: inline-block;
-            background: rgba(255,255,255,0.25);
-            padding: 12px 25px;
-            margin: 8px;
-            border-radius: 30px;
-            font-size: 16px;
-            backdrop-filter: blur(10px);
-        }
-
-        .action-buttons {
-            margin-top: 25px;
+            border-radius: 15px;
+            margin: 20px auto;
         }
 
         .btn-action {
-            background: rgba(255,255,255,0.95);
+            background: rgba(255,255,255,0.9);
             color: #333;
             border: none;
-            padding: 12px 25px;
-            margin: 8px;
-            border-radius: 30px;
+            padding: 12px 20px;
+            margin: 5px;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-action:hover {
-            background: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
         }
 
         .loading {
-            display: none;
             text-align: center;
-            padding: 40px;
+            padding: 30px;
+            display: none;
         }
 
-        .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #667eea;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 25px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @media (max-width: 768px) {
-            .btn-group {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            .content {
-                padding: 25px;
-            }
-            .header h1 {
-                font-size: 2em;
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -236,47 +218,63 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 QRIS Generator</h1>
-            <p>Generate QRIS Dinamis - Minimal Rp1.000</p>
+            <h1>⚡ Top Up Instan</h1>
+            <p>Pulsa, Game, E-Wallet - QRIS Payment</p>
         </div>
 
         <div class="content">
+            <div class="category-tabs">
+                <button class="tab-btn active" onclick="switchCategory('pulsa')">📱 Pulsa</button>
+                <button class="tab-btn" onclick="switchCategory('game')">🎮 Game</button>
+                <button class="tab-btn" onclick="switchCategory('ewallet')">💳 E-Wallet</button>
+                <button class="tab-btn" onclick="switchCategory('paket')">📦 Paket Data</button>
+            </div>
+
+            <div class="product-grid" id="productGrid">
+                <!-- Products akan di-generate JS -->
+            </div>
+
             <div class="form-section">
                 <div class="form-group">
-                    <label for="amount">💰 Nominal (Rp)</label>
-                    <input type="number" id="amount" min="1000" placeholder="Masukkan nominal minimal Rp1.000" required>
+                    <label>📝 No HP / ID</label>
+                    <input type="tel" id="customerId" placeholder="08123456789 / Player ID">
+                </div>
+                <div class="form-group">
+                    <label>💰 Nominal</label>
+                    <input type="number" id="amount" min="1000" placeholder="Rp 10.000">
+                </div>
+                <div class="form-group">
+                    <label>📋 Catatan</label>
+                    <input type="text" id="notes" placeholder="ML ID: Sajaad#1234">
                 </div>
 
                 <div class="btn-group">
                     <button class="btn-generate" onclick="generateQRIS()">
-                        <span>🎫 Generate QRIS</span>
+                        🎫 Bayar QRIS
                     </button>
                     <button class="btn-cancel" onclick="cancelCurrentQRIS()" id="btnCancel" style="display: none;">
-                        <span>❌ Batalkan Pesanan</span>
+                        ❌ Batal
                     </button>
                 </div>
             </div>
 
             <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p id="loadingText">Generating QRIS...</p>
+                <div style="border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
+                <p>Generating QRIS...</p>
             </div>
 
             <div class="qris-result" id="qrisResult">
-                <h2 id="resultTitle">✅ QRIS Berhasil Dibuat!</h2>
-                <img id="qrisImage" class="qris-image" alt="QRIS Code">
-                <div class="qris-info" id="qrisInfo"></div>
-                
-                <div class="action-buttons">
-                    <button class="btn-action" onclick="copyQRIS()">
-                        📋 Copy Link QRIS
-                    </button>
-                    <button class="btn-action" onclick="downloadQRIS()">
-                        ⬇️ Download PNG
-                    </button>
-                    <button class="btn-action" onclick="checkStatusNow()">
-                        🔄 Cek Status
-                    </button>
+                <h3 id="resultTitle">✅ QRIS Siap Bayar!</h3>
+                <img id="qrisImage" class="qris-image" alt="QRIS">
+                <div id="qrisInfo" style="margin: 20px 0;">
+                    <div style="font-size: 24px; margin-bottom: 15px;">💰 <span id="displayAmount"></span></div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; display: inline-block; margin: 5px;">
+                        🆔 <span id="qrisId"></span>
+                    </div>
+                </div>
+                <div>
+                    <button class="btn-action" onclick="copyQRIS()">📋 Copy Link</button>
+                    <button class="btn-action" onclick="downloadQRIS()">⬇️ Download</button>
                 </div>
             </div>
         </div>
@@ -286,51 +284,106 @@
         const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
         const API_URL = 'https://api.qrispy.id';
         let currentQRIS = null;
+        let currentProduct = null;
+
+        const products = {
+            pulsa: [
+                { name: 'Telkomsel 5K', price: 5500, img: '📡' },
+                { name: 'Telkomsel 10K', price: 10500, img: '📡' },
+                { name: 'Telkomsel 20K', price: 20500, img: '📡' },
+                { name: 'XL 10K', price: 10500, img: '📶' },
+                { name: 'XL 20K', price: 20500, img: '📶' },
+                { name: 'Indosat 10K', price: 10500, img: '📵' }
+            ],
+            game: [
+                { name: 'ML Diamond 17', price: 15000, img: '⚔️' },
+                { name: 'ML Diamond 38', price: 30000, img: '⚔️' },
+                { name: 'ML Diamond 73', price: 55000, img: '⚔️' },
+                { name: 'FF Diamond 50', price: 15000, img: '🔫' },
+                { name: 'FF Diamond 100', price: 28000, img: '🔫' },
+                { name: 'PUBG UC 60', price: 15000, img: '🎮' }
+            ],
+            ewallet: [
+                { name: 'Dana 10K', price: 10500, img: '💳' },
+                { name: 'Dana 25K', price: 25500, img: '💳' },
+                { name: 'Dana 50K', price: 50500, img: '💳' },
+                { name: 'Gopay 10K', price: 10500, img: '💳' },
+                { name: 'OVO 10K', price: 10500, img: '💳' }
+            ],
+            paket: [
+                { name: 'Telkomsel 2GB', price: 15000, img: '📱' },
+                { name: 'Telkomsel 5GB', price: 35000, img: '📱' },
+                { name: 'XL 3GB', price: 25000, img: '📱' },
+                { name: 'Indosat 2GB', price: 18000, img: '📱' }
+            ]
+        };
+
+        function switchCategory(category) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = products[category].map(product => `
+                <div class="product-card ${currentProduct?.name === product.name ? 'active' : ''}" onclick="selectProduct('${category}', '${product.name}', ${product.price})">
+                    <div>${product.img}</div>
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-price">Rp ${product.price.toLocaleString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function selectProduct(category, name, price) {
+            currentProduct = { category, name, price };
+            document.querySelectorAll('.product-card').forEach(card => card.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('amount').value = price;
+            document.getElementById('notes').placeholder = `${name} - ${category}`;
+        }
 
         function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(angka);
+            return new Intl.NumberFormat('id-ID').format(angka);
         }
 
         async function generateQRIS() {
             const amount = parseInt(document.getElementById('amount').value);
+            const customerId = document.getElementById('customerId').value;
+            const notes = document.getElementById('notes').value || currentProduct?.name || '';
 
             if (!amount || amount < 1000) {
-                alert('⚠️ Minimal nominal Rp1.000!');
+                alert('⚠️ Minimal Rp1.000!');
                 return;
             }
 
             const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
             const btnCancel = document.getElementById('btnCancel');
             const loading = document.getElementById('loading');
-            const result = document.getElementById('qrisResult');
 
             btnGenerate.disabled = true;
             btnCancel.style.display = 'none';
-            document.getElementById('loadingText').textContent = '🎫 Generating QRIS...';
             loading.style.display = 'block';
-            result.style.display = 'none';
 
             try {
+                const body = { 
+                    amount,
+                    payment_reference: notes ? `${customerId || 'Cust'} - ${notes}`.substring(0, 50) : undefined
+                };
+
                 const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
                     method: 'POST',
                     headers: {
                         'X-API-Token': API_TOKEN,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ amount })
+                    body: JSON.stringify(body)
                 });
 
                 const data = await response.json();
 
                 if (data.status === 'success') {
                     currentQRIS = data.data;
-                    displayQRIS(data.data);
+                    displayQRIS(data.data, notes);
                     btnCancel.style.display = 'block';
-                    startStatusCheck();
                 } else {
                     throw new Error(data.message || 'Gagal generate QRIS');
                 }
@@ -342,129 +395,41 @@
             }
         }
 
-        function displayQRIS(qrisData) {
-            const result = document.getElementById('qrisResult');
-            const image = document.getElementById('qrisImage');
-            const info = document.getElementById('qrisInfo');
-            const title = document.getElementById('resultTitle');
-
-            image.src = qrisData.qris_image_url;
-            title.textContent = '✅ QRIS Berhasil Dibuat!';
-            result.className = 'qris-result'; // Reset classes
-
-            info.innerHTML = `
-                <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
-                <div class="info-item">🆔 ${qrisData.qris_id}</div>
-                <div class="info-item">⏰ ${new Date(qrisData.expired_at).toLocaleString('id-ID')}</div>
-            `;
-
-            result.style.display = 'block';
-            image.scrollIntoView({ behavior: 'smooth' });
+        function displayQRIS(qrisData, notes) {
+            document.getElementById('qrisResult').style.display = 'block';
+            document.getElementById('qrisImage').src = qrisData.qris_image_url;
+            document.getElementById('resultTitle').textContent = `✅ Bayar ${notes || 'Pesanan'}`;
+            document.getElementById('displayAmount').textContent = formatRupiah(qrisData.amount);
+            document.getElementById('qrisId').textContent = qrisData.qris_id;
+            document.getElementById('qrisResult').scrollIntoView({ behavior: 'smooth' });
         }
 
-        async function cancelCurrentQRIS() {
-            if (!currentQRIS) return;
-
-            if (confirm(`❌ Batalkan QRIS ${currentQRIS.qris_id}?\n\nNominal: ${formatRupiah(currentQRIS.amount)}`)) {
-                currentQRIS.status = 'cancelled';
-                document.getElementById('qrisResult').classList.add('status-cancelled');
-                document.getElementById('resultTitle').textContent = '❌ Pesanan Dibatalkan!';
+        function cancelCurrentQRIS() {
+            if (confirm('❌ Batalkan pembayaran ini?')) {
                 document.getElementById('btnCancel').style.display = 'none';
-                stopStatusCheck();
-                alert('✅ QRIS berhasil dibatalkan!');
-            }
-        }
-
-        let statusInterval;
-        function startStatusCheck() {
-            stopStatusCheck();
-            statusInterval = setInterval(checkStatus, 5000);
-        }
-
-        function stopStatusCheck() {
-            if (statusInterval) {
-                clearInterval(statusInterval);
-                statusInterval = null;
-            }
-        }
-
-        async function checkStatus() {
-            if (!currentQRIS) return;
-
-            try {
-                const response = await fetch(
-                    `${API_URL}/api/payment/qris/${currentQRIS.qris_id}/status`,
-                    { headers: { 'X-API-Token': API_TOKEN } }
-                );
-                const data = await response.json();
-
-                if (data.status && data.status !== 'pending') {
-                    currentQRIS.status = data.status;
-                    updateStatusDisplay(data.status);
-                    stopStatusCheck();
-                }
-            } catch (error) {
-                console.log('Status check failed:', error);
-            }
-        }
-
-        async function checkStatusNow() {
-            document.getElementById('loadingText').textContent = '🔄 Checking status...';
-            document.getElementById('loading').style.display = 'block';
-            await checkStatus();
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function updateStatusDisplay(status) {
-            const result = document.getElementById('qrisResult');
-            const title = document.getElementById('resultTitle');
-
-            result.classList.remove('status-paid', 'status-cancelled');
-            
-            switch(status) {
-                case 'paid':
-                    result.classList.add('status-paid');
-                    title.textContent = '🎉 PEMBAYARAN SUKSES!';
-                    document.getElementById('btnCancel').style.display = 'none';
-                    break;
-                case 'expired':
-                    title.textContent = '⏰ QRIS KADALUARSA';
-                    document.getElementById('btnCancel').style.display = 'none';
-                    break;
-                case 'cancelled':
-                    result.classList.add('status-cancelled');
-                    title.textContent = '❌ QRIS DIBATALKAN';
-                    break;
+                document.getElementById('qrisResult').style.display = 'none';
+                currentQRIS = null;
+                alert('✅ Dibatalkan! Siap buat QRIS baru.');
             }
         }
 
         function copyQRIS() {
-            if (currentQRIS) {
-                navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
-                    alert('✅ Link QRIS berhasil dicopy!\n\n' + currentQRIS.qris_image_url);
-                });
-            }
+            navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
+                alert('✅ Link QRIS dicopy!');
+            });
         }
 
         function downloadQRIS() {
-            if (currentQRIS) {
-                const link = document.createElement('a');
-                link.href = currentQRIS.qris_image_url;
-                link.download = `qris-${currentQRIS.qris_id}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
+            const link = document.createElement('a');
+            link.href = currentQRIS.qris_image_url;
+            link.download = `qris-${currentQRIS.qris_id}.png`;
+            link.click();
         }
 
         // Init
+        switchCategory('pulsa');
         document.getElementById('amount').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value) e.target.value = parseInt(value);
-        });
-
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') generateQRIS();
+            e.target.value = e.target.value.replace(/\D/g, '');
         });
     </script>
 </body>
