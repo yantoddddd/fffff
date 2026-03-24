@@ -237,19 +237,20 @@
     <div class="container">
         <div class="header">
             <h1>QRIS GENERATOR</h1>
-            <p>Generate QRIS Dinamis - Minimal Rp1.000</p>
+            <p>Generate QRIS Dinamis - Tanpa Minimal</p> <!-- ✅ Ubah teks -->
         </div>
 
         <div class="content">
             <div class="form-section">
                 <div class="form-group">
-                    <label for="amount">Nominal (Rp)</label>
-                    <input type="number" id="amount" min="1000" placeholder="Masukkan nominal minimal Rp1.000" required>
+                    <label for="amount">💰 Nominal (Rp)</label>
+                    <!-- ✅ Hapus min="1000" & ubah placeholder -->
+                    <input type="number" id="amount" min="0" step="1" placeholder="Masukkan nominal (tanpa batas minimal)" required>
                 </div>
 
                 <div class="btn-group">
                     <button class="btn-generate" onclick="generateQRIS()">
-                        <span>HASILKAN QRIS</span>
+                        <span>🎫 HASILKAN QRIS</span>
                     </button>
                     <button class="btn-cancel" onclick="cancelCurrentQRIS()" id="btnCancel" style="display: none;">
                         <span>❌ Batalkan Pesanan</span>
@@ -298,12 +299,13 @@
         async function generateQRIS() {
             const amount = parseInt(document.getElementById('amount').value);
 
-            if (!amount || amount < 1000) {
-                alert('⚠️ Minimal nominal Rp1.000!');
+            // ✅ HAPUS validasi minimal 1000
+            if (!amount || amount < 0) {
+                alert('⚠️ Masukkan nominal yang valid (minimal Rp0)!');
                 return;
             }
 
-            const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
+            const btnGenerate = document.querySelector('.btn-generate');
             const btnCancel = document.getElementById('btnCancel');
             const loading = document.getElementById('loading');
             const result = document.getElementById('qrisResult');
@@ -350,7 +352,7 @@
 
             image.src = qrisData.qris_image_url;
             title.textContent = '✅ QRIS Berhasil Dibuat!';
-            result.className = 'qris-result'; // Reset classes
+            result.className = 'qris-result';
 
             info.innerHTML = `
                 <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
@@ -457,10 +459,10 @@
             }
         }
 
-        // Init
+        // Init - ✅ Ubah validasi input
         document.getElementById('amount').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
-            if (value) e.target.value = parseInt(value);
+            e.target.value = value || ''; // Izinkan kosong
         });
 
         document.addEventListener('keypress', function(e) {
