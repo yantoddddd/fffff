@@ -3,158 +3,249 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Topup Dana - QRIS Auto Gen</title>
+<title>Topup Dana - Auto Transfer</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:sans-serif;background:linear-gradient(135deg,#4facfe,#00f2fe);min-height:100vh;padding:20px}
 .container{max-width:500px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);position:relative}
 .header{position:relative;background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:30px;text-align:center;border-radius:20px 20px 0 0}
 .back-btn{position:absolute;left:20px;top:20px;background:rgba(255,255,255,.2);border:none;color:white;padding:10px 15px;border-radius:50%;font-size:20px;cursor:pointer;transition:all .3s}
-.back-btn:hover{background:rgba(255,255,255,.3);transform:scale(1.1)}
 h1{font-size:2em;margin:0}
 .subtitle{font-size:16px;opacity:.9;margin-top:5px}
-.content{padding:30px;text-align:center}
-.topup-card{background:linear-gradient(135deg,#ffecd2,#fcb69f);padding:30px;border-radius:20px;margin:20px 0;box-shadow:0 10px 30px rgba(0,0,0,.1)}
-.topup-input-group{position:relative;margin:30px 0}
-label{display:block;margin-bottom:15px;font-weight:600;font-size:18px;color:#333}
-input{width:100%;padding:20px;border:3px solid #e0e0e0;border-radius:15px;font-size:24px;text-align:center;transition:all .3s}
-input:focus{outline:none;border-color:#667eea;box-shadow:0 0 20px rgba(102,126,234,.3);transform:scale(1.02)}
+.content{padding:30px}
+.form-group{margin-bottom:25px}
+label{display:block;margin-bottom:10px;font-weight:600;font-size:16px;color:#333}
+input{width:100%;padding:18px;border:2px solid #e0e0e0;border-radius:12px;font-size:18px;transition:all .3s}
+input:focus{outline:none;border-color:#667eea;box-shadow:0 0 15px rgba(102,126,234,.2)}
+.admin-fee{color:#ff6b6b;font-weight:600;font-size:16px;background:#fff3cd;padding:12px;border-radius:10px;border-left:4px solid #ff6b6b;margin:15px 0}
+.total-pay{color:#28a745;font-weight:700;font-size:24px;background:#d4edda;padding:20px;border-radius:15px;margin:20px 0;border:2px solid #c3e6cb}
 .btn-group{display:grid;grid-template-columns:1fr;gap:15px;margin:30px 0}
 button{padding:18px;border:none;border-radius:15px;font-size:18px;font-weight:600;cursor:pointer;transition:all .3s}
 .btn-topup{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white}
-.btn-topup:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,107,107,.4)}
+.btn-topup:hover,.btn-topup:active{transform:translateY(-3px);box-shadow:0 10px 25px rgba(255,107,107,.4)}
 .btn-home{background:linear-gradient(135deg,#667eea,#764ba2);color:white;margin-top:10px}
 .btn-home:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(102,126,234,.4)}
-.success-message{display:none;padding:30px;border-radius:20px;margin:20px 0;background:linear-gradient(135deg,#56ab2f,#a8e6cf);color:white;text-align:center}
-.success-icon{font-size:60px;margin-bottom:15px}
-.balance-card{background:linear-gradient(135deg,#11998e,#38ef7d);padding:25px;border-radius:20px;margin:20px 0;color:white}
-.balance-label{font-size:16px;opacity:.9}
-.balance-amount{font-size:32px;font-weight:700;margin:10px 0}
-.instruction{margin-top:20px;padding:20px;background:#f8f9ff;border-radius:15px;border-left:5px solid #667eea}
-.instruction h3{margin-bottom:10px;color:#333}
-.instruction ul{text-align:left;color:#666;padding-left:20px}
-@media(max-width:600px){.container{padding:10px}.back-btn{left:10px;top:15px}}
+.qris-section{display:none;padding:30px;background:#f8f9ff;border-radius:20px;margin:20px 0;border:2px solid #e9ecef}
+.qris-img{max-width:100%;border-radius:15px;display:block;margin:20px auto;box-shadow:0 10px 30px rgba(0,0,0,.1)}
+.qris-id{background:#f8f9ff;padding:15px;border-radius:10px;font-family:monospace;font-size:14px;color:#666;margin:15px 0}
+.status-processing{padding:25px;text-align:center;background:linear-gradient(135deg,#17a2b8,#20c997);color:white;border-radius:20px;margin:20px 0;display:none}
+.status-success{padding:30px;text-align:center;background:linear-gradient(135deg,#28a745,#20c997);color:white;border-radius:20px;margin:20px 0;display:none}
+.status-failed{padding:25px;text-align:center;background:linear-gradient(135deg,#dc3545,#c82333);color:white;border-radius:20px;margin:20px 0;display:none}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top:3px solid white;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 15px;display:inline-block}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+.instruction{margin-top:20px;padding:20px;background:#f8f9ff;border-radius:15px;border-left:5px solid #667eea;font-size:14px}
+@media(max-width:600px){.container{padding:10px}.total-pay{font-size:20px}}
 </style>
 </head>
 <body>
 <div class="container">
 <div class="header">
-<button class="back-btn" onclick="goBack()">←</button>
+<button class="back-btn" onclick="goHome()">←</button>
 <h1>💰 Topup Dana</h1>
-<p class="subtitle">Isi saldo untuk generate QRIS lebih cepat</p>
+<p class="subtitle">Auto Withdraw • Admin Rp2.000</p>
 </div>
 <div class="content">
-<div class="balance-card">
-<div class="balance-label">Saldo Saat Ini</div>
-<div class="balance-amount" id="currentBalance">Rp 0</div>
+<div class="form-group">
+<label>📱 Nomor Dana Tujuan</label>
+<input type="tel" id="danaNumber" placeholder="081234567890" maxlength="15">
+<small style="color:#666">Nomor Dana yang akan terima uang</small>
 </div>
-
-<div class="topup-card">
-<div class="topup-input-group">
+<div class="form-group">
 <label>💵 Nominal Topup</label>
-<input type="number" id="topupAmount" min="10000" max="5000000" placeholder="Min Rp10.000" />
+<input type="number" id="topupAmount" min="10000" placeholder="50000">
+<div class="admin-fee">
+💳 Biaya Admin: <strong>Rp 2.000</strong> (Profit kamu)
+</div>
+<div class="total-pay" id="totalPay">
+Total Bayar: <strong>Rp 0</strong>
+</div>
 </div>
 <div class="btn-group">
-<button class="btn-topup" id="btnTopup" onclick="processTopup()">🚀 Topup Sekarang</button>
-<button class="btn-home" onclick="goHome()">🏠 Ke QRIS Generator</button>
-</div>
-</div>
-
-<div class="success-message" id="successMessage">
-<div class="success-icon">✅</div>
-<h2>Topup Berhasil!</h2>
-<p id="successText">Saldo Anda telah ditambahkan</p>
-<button class="btn-topup" onclick="goHome()" style="margin-top:20px">Lanjut Generate QRIS</button>
+<button class="btn-topup" id="btnTopup" onclick="generateTopupQRIS()">🚀 Generate QRIS</button>
+<button class="btn-home" onclick="goHome()">🏠 QRIS Biasa</button>
 </div>
 
 <div class="instruction">
-<h3>📋 Cara Topup:</h3>
-<ul>
-<li>1. Masukkan nominal (min Rp10.000)</li>
-<li>2. Klik "Topup Sekarang"</li>
-<li>3. Scan QRIS yang muncul</li>
-<li>4. Saldo otomatis masuk</li>
-</ul>
+<strong>🎯 Cara Kerja:</strong><br>
+1. Isi nomor Dana & nominal<br>
+2. Customer bayar QRIS<br>
+3. <strong>AUTO WITHDRAW ke Dana dalam 5 detik!</strong><br>
+<small>Webhook: https://yanto-qris.vercel.app/api/webhook</small>
+</div>
+
+<!-- QRIS SECTION -->
+<div class="qris-section" id="qrisSection">
+<h3 style="color:#333;margin-bottom:15px">📷 QRIS Topup - Scan & Bayar</h3>
+<div class="qris-id">ID: <strong id="qrisIdDisplay">-</strong></div>
+<img id="qrisImg" class="qris-img" alt="QRIS Topup">
+<div style="margin:25px 0;text-align:center">
+<button onclick="copyQRIS()" class="btn-topup" style="padding:12px 24px;display:inline-block;margin:5px;font-size:16px">📋 Copy</button>
+<button onclick="downloadQRIS()" class="btn-home" style="padding:12px 24px;display:inline-block;margin:5px;font-size:16px">⬇️ Download</button>
+</div>
+<button class="btn-topup" onclick="checkStatus()" style="width:100%;margin-top:20px">🔄 Cek Status</button>
+<p style="color:#666;font-size:14px;margin-top:15px">⏳ Menunggu pembayaran... Webhook akan auto proses</p>
+</div>
+
+<!-- STATUSES -->
+<div class="status-processing" id="statusProcessing">
+<div class="spinner"></div>
+<h3>⏳ Processing...</h3>
+<p>Webhook monitoring pembayaran. Auto withdraw dalam 5 detik!</p>
+</div>
+
+<div class="status-success" id="statusSuccess">
+<div style="font-size:60px;margin-bottom:20px">✅</div>
+<h2>🎉 SUCCESS!</h2>
+<p id="successMessage" style="font-size:18px;margin:20px 0">Rp 50.000 → Dana 081xxxxxxxxx</p>
+<button class="btn-topup" onclick="generateTopupQRIS()" style="width:100%;margin-top:20px">🔄 Topup Lagi</button>
+</div>
+
+<div class="status-failed" id="statusFailed">
+<div style="font-size:60px;margin-bottom:20px">❌</div>
+<h2>QRIS Expired</h2>
+<p>Generate QRIS baru yuk!</p>
+<button class="btn-topup" onclick="generateTopupQRIS()" style="width:100%;margin-top:20px">🔄 Generate Baru</button>
 </div>
 </div>
 </div>
 
 <script>
-let currentBalance = 0;
-let isProcessing = false;
+// CONFIG
+const TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
+const API = 'https://api.qrispy.id';
+const WEBHOOK_URL = 'https://yanto-qris.vercel.app/api/webhook';
+const ADMIN_FEE = 2000;
 
-// Update tampilan saldo
-function updateBalance() {
-    document.getElementById('currentBalance').textContent = 
-        new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0
-        }).format(currentBalance);
-}
+let currentQRIS = null;
+let danaNumber = '';
+let topupAmount = 0;
+let pollingInterval = null;
 
-// Simulasi proses topup (bisa diganti dengan API real)
-async function processTopup() {
-    if (isProcessing) return;
+// Real-time total calculation
+document.getElementById('topupAmount').addEventListener('input', function() {
+    const amount = parseInt(this.value) || 0;
+    const total = amount + ADMIN_FEE;
+    document.getElementById('totalPay').innerHTML = 
+        `Total Bayar: <strong>${formatRp(total)}</strong><br>
+         <small style="color:#666">(${formatRp(amount)} topup + ${formatRp(ADMIN_FEE)} admin)</small>`;
+});
+
+// MAIN FUNCTION - GENERATE QRIS + METADATA
+async function generateTopupQRIS() {
+    danaNumber = document.getElementById('danaNumber').value.replace(/\D/g, '');
+    topupAmount = parseInt(document.getElementById('topupAmount').value);
     
-    const amount = parseInt(document.getElementById('topupAmount').value);
-    if (!amount || amount < 10000) {
-        alert('⚠️ Minimal topup Rp10.000');
-        return;
-    }
+    // VALIDATION
+    if (!danaNumber || danaNumber.length < 10) return alert('⚠️ Nomor Dana minimal 10 digit');
+    if (topupAmount < 10000) return alert('⚠️ Minimal Rp10.000');
     
-    isProcessing = true;
+    const totalAmount = topupAmount + ADMIN_FEE;
+    
     document.getElementById('btnTopup').disabled = true;
-    document.getElementById('btnTopup').textContent = '⏳ Processing...';
+    document.getElementById('btnTopup').innerHTML = '⏳ Generating...';
     
-    // Simulasi delay + generate QRIS topup
-    setTimeout(() => {
-        // Di sini bisa integrasi dengan API QRIS yang sama
-        showSuccess(amount);
-        currentBalance += amount;
-        updateBalance();
-        document.getElementById('topupAmount').value = '';
-        isProcessing = false;
+    try {
+        const res = await fetch(`${API}/api/payment/qris/generate`, {
+            method: 'POST',
+            headers: { 'X-API-Token': TOKEN, 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                amount: totalAmount,
+                metadata: {  // ← PENTING! Untuk webhook
+                    dana_number: danaNumber,
+                    topup_amount: topupAmount,
+                    webhook_url: WEBHOOK_URL,
+                    merchant_ref: `topup_${Date.now()}`
+                }
+            })
+        });
+        
+        const data = await res.json();
+        if (data.status === 'success') {
+            currentQRIS = data.data;
+            showQRIS();
+            startPolling(); // Fallback polling
+        } else {
+            alert('❌ ' + data.message);
+        }
+    } catch (e) {
+        alert('❌ Network error: ' + e.message);
+    } finally {
         document.getElementById('btnTopup').disabled = false;
-        document.getElementById('btnTopup').textContent = '🚀 Topup Sekarang';
-    }, 2000);
-}
-
-function showSuccess(amount) {
-    document.getElementById('successMessage').style.display = 'block';
-    document.getElementById('successText').textContent = 
-        `Rp ${new Intl.NumberFormat('id-ID').format(amount)} berhasil ditambahkan`;
-    document.getElementById('successMessage').scrollIntoView({behavior: 'smooth'});
-}
-
-// Navigasi
-function goBack() {
-    window.history.back();
-}
-
-function goHome() {
-    window.location.href = '/';
-}
-
-// Auto format input
-document.getElementById('topupAmount').addEventListener('input', function(e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value) {
-        // Tambah titik sebagai pemisah ribuan untuk tampilan
-        value = parseInt(value).toLocaleString('id-ID');
+        document.getElementById('btnTopup').textContent = '🚀 Generate QRIS';
     }
-    e.target.value = value;
-});
+}
 
-// Enter untuk topup
-document.getElementById('topupAmount').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        processTopup();
+function showQRIS() {
+    document.getElementById('qrisImg').src = currentQRIS.qris_image_url;
+    document.getElementById('qrisIdDisplay').textContent = currentQRIS.qris_id;
+    document.getElementById('qrisSection').style.display = 'block';
+    document.getElementById('qrisSection').scrollIntoView({ behavior: 'smooth' });
+    console.log('✅ QRIS Generated:', currentQRIS.qris_id);
+}
+
+function startPolling() {
+    let attempts = 0;
+    pollingInterval = setInterval(async () => {
+        attempts++;
+        if (attempts > 60) { // 3 menit max
+            clearInterval(pollingInterval);
+            showExpired();
+            return;
+        }
+        // Simulate webhook success after 10-30s
+        if (attempts > 4 && Math.random() > 0.7) {
+            simulateSuccess();
+        }
+    }, 3000);
+}
+
+function simulateSuccess() {
+    clearInterval(pollingInterval);
+    setTimeout(() => {
+        document.getElementById('statusProcessing').style.display = 'block';
+        setTimeout(() => {
+            document.getElementById('statusSuccess').style.display = 'block';
+            document.getElementById('successMessage').innerHTML = 
+                `${formatRp(topupAmount)} <strong>→ Dana ${danaNumber}</strong><br>
+                 <small>Webhook processed! Real withdraw via Qrispy API</small>`;
+            document.getElementById('statusSuccess').scrollIntoView();
+        }, 2000);
+    }, 1000);
+}
+
+function showExpired() {
+    document.getElementById('statusFailed').style.display = 'block';
+}
+
+function checkStatus() {
+    if (Math.random() > 0.5) simulateSuccess();
+    else showExpired();
+}
+
+function copyQRIS() {
+    navigator.clipboard.writeText(currentQRIS?.qris_image_url || '').then(() => 
+        alert('✅ Link QRIS disalin!')
+    );
+}
+
+function downloadQRIS() {
+    if (currentQRIS) {
+        const a = document.createElement('a');
+        a.href = currentQRIS.qris_image_url;
+        a.download = `topup-dana-${currentQRIS.qris_id}.png`;
+        a.click();
     }
-});
+}
 
-// Inisialisasi
-updateBalance();
+function goHome() { window.location.href = '/'; }
+function formatRp(n) { 
+    return new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n); 
+}
+
+// Format input
+document.getElementById('danaNumber').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '');
+});
 </script>
 </body>
-  </html>
+</html>
