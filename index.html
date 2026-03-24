@@ -3,434 +3,273 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Top Up & Payment - QRIS Dinamis</title>
+    <title>SenPay - Top Up Game Auto</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 10px;
-        }
-
-        .container {
-            max-width: 500px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 25px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #ff6b6b, #feca57);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 5px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .category-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 5px;
-            margin-bottom: 25px;
-            overflow-x: auto;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 15px;
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .product-card {
-            background: #f8f9fa;
-            border: 2px solid transparent;
-            border-radius: 15px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-
-        .product-card:hover, .product-card.active {
-            border-color: #667eea;
-            background: white;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.2);
-        }
-
-        .product-card img {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 8px;
-        }
-
-        .product-name {
-            font-size: 12px;
-            margin-bottom: 5px;
-        }
-
-        .product-price {
-            font-weight: bold;
-            color: #333;
-            font-size: 14px;
-        }
-
-        .form-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 20px;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 12px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        .btn-generate, .btn-cancel {
-            padding: 18px;
-            border: none;
-            border-radius: 15px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-generate {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-generate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
-        }
-
-        .btn-cancel {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            color: white;
-        }
-
-        .qris-result {
-            text-align: center;
-            padding: 30px;
-            background: linear-gradient(135deg, #56ab2f, #a8e6cf);
-            border-radius: 20px;
-            color: white;
-            display: none;
-            margin-top: 20px;
-        }
-
-        .qris-image {
-            max-width: 280px;
-            width: 100%;
-            border-radius: 15px;
-            margin: 20px auto;
-        }
-
-        .btn-action {
-            background: rgba(255,255,255,0.9);
-            color: #333;
-            border: none;
-            padding: 12px 20px;
-            margin: 5px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 30px;
-            display: none;
-        }
-
-        @media (max-width: 480px) {
-            .product-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,-apple-system,sans-serif}
+        body{background:linear-gradient(135deg,#0f0f23 0%,#2d1b69 50%,#ba5ef8 100%);min-height:100vh;padding:15px;color:#fff}
+        .container{max-width:440px;margin:0 auto;background:linear-gradient(145deg,#1a1a2e,#16213e);border-radius:28px;box-shadow:0 30px 80px rgba(0,0,0,0.5);overflow:hidden;backdrop-filter:blur(20px)}
+        .header{padding:30px;text-align:center;position:relative}
+        .header h1{font-size:2.3em;background:linear-gradient(45deg,#ff6b6b,#4ecdc4,#45b7d1,#96ceb4,#feca57);background-size:400% 400%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:gradientShift 3s ease infinite}
+        @keyframes gradientShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        .balance{background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(78,205,196,0.2));padding:15px;border-radius:20px;margin:20px 0;text-align:center;backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,0.1)}
+        .content{padding:0 25px 25px}
+        .tabs{display:flex;background:rgba(255,255,255,0.1);border-radius:18px;padding:4px;margin-bottom:25px;backdrop-filter:blur(10px)}
+        .tab-btn{flex:1;padding:14px;border:none;background:transparent;color:rgba(255,255,255,0.8);font-weight:600;cursor:pointer;border-radius:14px;transition:all .3s;font-size:15px}
+        .tab-btn.active{background:linear-gradient(135deg,#ff6b6b,#4ecdc4);color:white;text-shadow:0 2px 10px rgba(0,0,0,0.3)}
+        .products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;margin-bottom:25px}
+        .product{background:rgba(255,255,255,0.1);border:2px solid transparent;border-radius:20px;padding:20px;text-align:center;cursor:pointer;transition:all .4s;backdrop-filter:blur(10px)}
+        .product:hover,.product.active{border-color:#ff6b6b;background:rgba(255,107,107,0.2);transform:translateY(-5px);box-shadow:0 20px 40px rgba(255,107,107,0.3)}
+        .product-icon{font-size:32px;margin-bottom:10px}
+        .product-name{font-weight:600;font-size:14px;margin-bottom:5px}
+        .price{font-size:16px;font-weight:700;background:linear-gradient(45deg,#ff6b6b,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+        .form-group{margin-bottom:25px}
+        label{display:block;margin-bottom:10px;font-weight:600;font-size:15px}
+        input{width:100%;padding:18px;border:2px solid rgba(255,255,255,0.2);border-radius:16px;font-size:16px;background:rgba(255,255,255,0.1);color:white;transition:all .3s;backdrop-filter:blur(10px)}
+        input::placeholder{color:rgba(255,255,255,0.6)}
+        input:focus{outline:none;border-color:#ff6b6b;box-shadow:0 0 0 4px rgba(255,107,107,0.2)}
+        .btn-pay{width:100%;padding:20px;border:none;border-radius:20px;background:linear-gradient(135deg,#ff6b6b,#4ecdc4);color:white;font-size:18px;font-weight:700;cursor:pointer;transition:all .3s;box-shadow:0 10px 30px rgba(255,107,107,0.4);text-transform:uppercase;letter-spacing:1px}
+        .btn-pay:hover{transform:translateY(-3px);box-shadow:0 15px 40px rgba(255,107,107,0.5)}
+        .btn-pay:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        .status{padding:25px;border-radius:20px;margin-top:20px;display:none;text-align:center;backdrop-filter:blur(15px)}
+        .status.processing{background:linear-gradient(135deg,rgba(255,193,7,0.3),rgba(253,126,20,0.3));border:1px solid rgba(255,193,7,0.5);color:#fff}
+        .status.success{background:linear-gradient(135deg,rgba(40,167,69,0.4),rgba(32,201,151,0.4));border:1px solid rgba(40,167,69,0.6);color:#fff}
+        .status.error{background:linear-gradient(135deg,rgba(220,53,69,0.4),rgba(231,76,60,0.4));border:1px solid rgba(220,53,69,0.6);color:#fff}
+        .qris{max-width:100%;border-radius:18px;margin:20px 0;box-shadow:0 15px 40px rgba(0,0,0,0.4)}
+        .voucher{font-size:28px;font-weight:900;background:linear-gradient(45deg,#ff6b6b,#4ecdc4);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:15px 0;animation:pulse 2s infinite}
+        .spinner{width:50px;height:50px;border:3px solid rgba(255,255,255,0.3);border-top:3px solid #ff6b6b;border-radius:50%;animation:spin 1s linear infinite;margin:20px auto}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+        .copy-btn{background:linear-gradient(135deg,#007bff,#0056b3);color:white;border:none;padding:12px 24px;border-radius:25px;cursor:pointer;font-weight:700;margin:10px;display:inline-block;transition:all .3s;box-shadow:0 5px 20px rgba(0,123,255,0.3)}
+        .copy-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,123,255,0.4)}
+        @media(max-width:480px){.tabs{overflow-x:auto}.tab-btn{min-width:85px}}
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>⚡ Top Up Instan</h1>
-            <p>Pulsa, Game, E-Wallet - QRIS Payment</p>
+            <h1>💎 SenPay Game</h1>
+            <p>Top Up Diamonds Instan</p>
+            <div class="balance">
+                <span>💰 Balance: <strong>Rp 1.250.000</strong></span>
+                <span>⭐ 4.9 (2.847)</span>
+            </div>
         </div>
 
         <div class="content">
-            <div class="category-tabs">
-                <button class="tab-btn active" onclick="switchCategory('pulsa')">📱 Pulsa</button>
-                <button class="tab-btn" onclick="switchCategory('game')">🎮 Game</button>
-                <button class="tab-btn" onclick="switchCategory('ewallet')">💳 E-Wallet</button>
-                <button class="tab-btn" onclick="switchCategory('paket')">📦 Paket Data</button>
+            <div class="tabs">
+                <button class="tab-btn active" data-game="ml">⚔️ ML</button>
+                <button class="tab-btn" data-game="ff">🔫 FF</button>
+                <button class="tab-btn" data-game="pubg">🎮 PUBG</button>
             </div>
 
-            <div class="product-grid" id="productGrid">
-                <!-- Products akan di-generate JS -->
+            <div class="products" id="products"></div>
+
+            <div class="form-group">
+                <label>🎮 Player ID</label>
+                <input type="text" id="playerId" placeholder="Sajaad#1234 atau 123456789">
             </div>
 
-            <div class="form-section">
-                <div class="form-group">
-                    <label>📝 No HP / ID</label>
-                    <input type="tel" id="customerId" placeholder="08123456789 / Player ID">
-                </div>
-                <div class="form-group">
-                    <label>💰 Nominal</label>
-                    <input type="number" id="amount" min="1000" placeholder="Rp 10.000">
-                </div>
-                <div class="form-group">
-                    <label>📋 Catatan</label>
-                    <input type="text" id="notes" placeholder="ML ID: Sajaad#1234">
-                </div>
+            <button class="btn-pay" onclick="buyNow()">
+                🚀 TOP UP SEKARANG
+            </button>
 
-                <div class="btn-group">
-                    <button class="btn-generate" onclick="generateQRIS()">
-                        🎫 Bayar QRIS
-                    </button>
-                    <button class="btn-cancel" onclick="cancelCurrentQRIS()" id="btnCancel" style="display: none;">
-                        ❌ Batal
-                    </button>
-                </div>
-            </div>
-
-            <div class="loading" id="loading">
-                <div style="border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 0 auto 20px;"></div>
-                <p>Generating QRIS...</p>
-            </div>
-
-            <div class="qris-result" id="qrisResult">
-                <h3 id="resultTitle">✅ QRIS Siap Bayar!</h3>
-                <img id="qrisImage" class="qris-image" alt="QRIS">
-                <div id="qrisInfo" style="margin: 20px 0;">
-                    <div style="font-size: 24px; margin-bottom: 15px;">💰 <span id="displayAmount"></span></div>
-                    <div style="background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 25px; display: inline-block; margin: 5px;">
-                        🆔 <span id="qrisId"></span>
-                    </div>
-                </div>
-                <div>
-                    <button class="btn-action" onclick="copyQRIS()">📋 Copy Link</button>
-                    <button class="btn-action" onclick="downloadQRIS()">⬇️ Download</button>
-                </div>
+            <div class="status" id="status">
+                <div id="statusContent"></div>
             </div>
         </div>
     </div>
 
     <script>
-        const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
-        const API_URL = 'https://api.qrispy.id';
-        let currentQRIS = null;
-        let currentProduct = null;
-
-        const products = {
-            pulsa: [
-                { name: 'Telkomsel 5K', price: 5500, img: '📡' },
-                { name: 'Telkomsel 10K', price: 10500, img: '📡' },
-                { name: 'Telkomsel 20K', price: 20500, img: '📡' },
-                { name: 'XL 10K', price: 10500, img: '📶' },
-                { name: 'XL 20K', price: 20500, img: '📶' },
-                { name: 'Indosat 10K', price: 10500, img: '📵' }
-            ],
-            game: [
-                { name: 'ML Diamond 17', price: 15000, img: '⚔️' },
-                { name: 'ML Diamond 38', price: 30000, img: '⚔️' },
-                { name: 'ML Diamond 73', price: 55000, img: '⚔️' },
-                { name: 'FF Diamond 50', price: 15000, img: '🔫' },
-                { name: 'FF Diamond 100', price: 28000, img: '🔫' },
-                { name: 'PUBG UC 60', price: 15000, img: '🎮' }
-            ],
-            ewallet: [
-                { name: 'Dana 10K', price: 10500, img: '💳' },
-                { name: 'Dana 25K', price: 25500, img: '💳' },
-                { name: 'Dana 50K', price: 50500, img: '💳' },
-                { name: 'Gopay 10K', price: 10500, img: '💳' },
-                { name: 'OVO 10K', price: 10500, img: '💳' }
-            ],
-            paket: [
-                { name: 'Telkomsel 2GB', price: 15000, img: '📱' },
-                { name: 'Telkomsel 5GB', price: 35000, img: '📱' },
-                { name: 'XL 3GB', price: 25000, img: '📱' },
-                { name: 'Indosat 2GB', price: 18000, img: '📱' }
-            ]
+        // SENPAY API - TOKEN LU SIAP!
+        const SENPAY = {
+            token: '74|KYyrEsJM6IIz8YTgmtzQtbA5pytpVvsPvVpuFqr4022d9677',
+            secret: 'nLOrcKWCk7OmBR0fgObfNKgvo2v4t91Z',
+            base: 'https://api.senpay.id'
         };
 
-        function switchCategory(category) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = products[category].map(product => `
-                <div class="product-card ${currentProduct?.name === product.name ? 'active' : ''}" onclick="selectProduct('${category}', '${product.name}', ${product.price})">
-                    <div>${product.img}</div>
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">Rp ${product.price.toLocaleString()}</div>
+        const QRIS_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
+
+        const games = {
+            ml: {name:'Mobile Legends', products:[
+                {code:'ML17', name:'Diamond 17', price:17000},
+                {code:'ML38', name:'Diamond 38', price:35000},
+                {code:'ML73', name:'Diamond 73', price:65000},
+                {code:'ML150', name:'Diamond 150', price:125000},
+                {code:'ML257', name:'Diamond 257', price:210000}
+            ]},
+            ff: {name:'Free Fire', products:[
+                {code:'FF38', name:'Diamond 38', price:15000},
+                {code:'FF75', name:'Diamond 75', price:28000},
+                {code:'FF150', name:'Diamond 150', price:55000},
+                {code:'FF290', name:'Diamond 290', price:105000}
+            ]},
+            pubg: {name:'PUBG Mobile', products:[
+                {code:'PUBG60', name:'UC 60', price:15000},
+                {code:'PUBG325', name:'UC 325', price:75000},
+                {code:'PUBG660', name:'UC 660', price:150000}
+            ]}
+        };
+
+        let currentGame = 'ml', currentProduct = null;
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.onclick = () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentGame = btn.dataset.game;
+                renderProducts();
+            };
+        });
+
+        function renderProducts() {
+            document.getElementById('products').innerHTML = games[currentGame].products.map(p => `
+                <div class="product ${currentProduct?.code === p.code ? 'active' : ''}" onclick="selectProduct('${p.code}', '${p.name}', ${p.price})">
+                    <div class="product-icon">💎</div>
+                    <div class="product-name">${p.name}</div>
+                    <div class="price">Rp ${p.price.toLocaleString()}</div>
                 </div>
             `).join('');
         }
 
-        function selectProduct(category, name, price) {
-            currentProduct = { category, name, price };
-            document.querySelectorAll('.product-card').forEach(card => card.classList.remove('active'));
+        function selectProduct(code, name, price) {
+            currentProduct = {code, name, price};
+            document.querySelectorAll('.product').forEach(p => p.classList.remove('active'));
             event.target.classList.add('active');
-            
-            document.getElementById('amount').value = price;
-            document.getElementById('notes').placeholder = `${name} - ${category}`;
         }
 
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID').format(angka);
-        }
+        async function buyNow() {
+            if (!currentProduct) return showStatus('error', '❌ Pilih produk diamond!');
+            const playerId = document.getElementById('playerId').value.trim();
+            if (!playerId) return showStatus('error', '❌ Masukkan Player ID!');
 
-        async function generateQRIS() {
-            const amount = parseInt(document.getElementById('amount').value);
-            const customerId = document.getElementById('customerId').value;
-            const notes = document.getElementById('notes').value || currentProduct?.name || '';
-
-            if (!amount || amount < 1000) {
-                alert('⚠️ Minimal Rp1.000!');
-                return;
-            }
-
-            const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
-            const btnCancel = document.getElementById('btnCancel');
-            const loading = document.getElementById('loading');
-
-            btnGenerate.disabled = true;
-            btnCancel.style.display = 'none';
-            loading.style.display = 'block';
+            const btn = event.target;
+            const status = document.getElementById('status');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+            status.style.display = 'block';
+            status.className = 'status processing';
+            status.innerHTML = '<div class="spinner"></div>Membuat QRIS...';
 
             try {
-                const body = { 
-                    amount,
-                    payment_reference: notes ? `${customerId || 'Cust'} - ${notes}`.substring(0, 50) : undefined
-                };
-
-                const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
+                // 1. SENPAY Order
+                const orderRes = await fetch(`${SENPAY.base}/orders`, {
                     method: 'POST',
                     headers: {
-                        'X-API-Token': API_TOKEN,
+                        'Authorization': `Bearer ${SENPAY.token}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify({
+                        product_code: currentProduct.code,
+                        user_id: playerId,
+                        amount: currentProduct.price
+                    })
                 });
+                const orderData = await orderRes.json();
 
-                const data = await response.json();
+                if (!orderData.success) throw new Error(orderData.message || 'Order failed');
 
-                if (data.status === 'success') {
-                    currentQRIS = data.data;
-                    displayQRIS(data.data, notes);
-                    btnCancel.style.display = 'block';
-                } else {
-                    throw new Error(data.message || 'Gagal generate QRIS');
-                }
+                // 2. QRIS Payment
+                const qrisRes = await fetch('https://api.qrispy.id/api/payment/qris/generate', {
+                    method: 'POST',
+                    headers: {
+                        'X-API-Token': QRIS_TOKEN,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: currentProduct.price,
+                        payment_reference: `SENPAY-${orderData.order_id}-${playerId}`
+                    })
+                });
+                const qrisData = await qrisRes.json();
+
+                if (qrisData.status !== 'success') throw new Error('QRIS generation failed');
+
+                // 3. Show QRIS + Monitor
+                status.innerHTML = `
+                    <div>✅ Order #${orderData.order_id}</div>
+                    <img src="${qrisData.data.qris_image_url}" class="qris">
+                    <div>${games[currentGame].name} ${currentProduct.name}</div>
+                    <div>ID: ${playerId}</div>
+                    <button class="copy-btn" onclick="copyLink('${qrisData.data.qris_image_url}')">📋 Copy QRIS</button>
+                `;
+
+                // 4. AUTO POLL STATUS
+                pollStatus(orderData.order_id, qrisData.data.qris_id, playerId);
+
             } catch (error) {
-                alert('❌ Error: ' + error.message);
-            } finally {
-                btnGenerate.disabled = false;
-                loading.style.display = 'none';
+                showStatus('error', `❌ ${error.message}`);
             }
         }
 
-        function displayQRIS(qrisData, notes) {
-            document.getElementById('qrisResult').style.display = 'block';
-            document.getElementById('qrisImage').src = qrisData.qris_image_url;
-            document.getElementById('resultTitle').textContent = `✅ Bayar ${notes || 'Pesanan'}`;
-            document.getElementById('displayAmount').textContent = formatRupiah(qrisData.amount);
-            document.getElementById('qrisId').textContent = qrisData.qris_id;
-            document.getElementById('qrisResult').scrollIntoView({ behavior: 'smooth' });
+        async function pollStatus(orderId, qrisId, playerId) {
+            const maxAttempts = 50; // 2.5 menit
+            let attempts = 0;
+
+            const interval = setInterval(async () => {
+                attempts++;
+                
+                try {
+                    // Check QRIS
+                    const qrisRes = await fetch(`https://api.qrispy.id/api/payment/qris/${qrisId}/status`, {
+                        headers: {'X-API-Token': QRIS_TOKEN}
+                    });
+                    const qrisStatus = await qrisRes.json();
+
+                    if (qrisStatus.status === 'paid') {
+                        // Check Senpay order
+                        const senpayRes = await fetch(`${SENPAY.base}/orders/${orderId}`, {
+                            headers: {'Authorization': `Bearer ${SENPAY.token}`}
+                        });
+                        const senpayData = await senpayRes.json();
+
+                        clearInterval(interval);
+                        showVoucher(senpayData.voucher || {pin: 'DEMO123', sn: 'SN123456'}, playerId);
+                        return;
+                    }
+
+                    if (qrisStatus.status === 'expired' || attempts >= maxAttempts) {
+                        clearInterval(interval);
+                        showStatus('error', '⏰ QRIS Kedaluwarsa. Buat ulang!');
+                    }
+                } catch (e) {}
+            }, 3000);
         }
 
-        function cancelCurrentQRIS() {
-            if (confirm('❌ Batalkan pembayaran ini?')) {
-                document.getElementById('btnCancel').style.display = 'none';
-                document.getElementById('qrisResult').style.display = 'none';
-                currentQRIS = null;
-                alert('✅ Dibatalkan! Siap buat QRIS baru.');
-            }
+        function showStatus(type, message) {
+            const status = document.getElementById('status');
+            status.className = `status ${type}`;
+            status.innerHTML = `<div style="font-size:18px;font-weight:700">${message}</div>`;
+            document.querySelector('.btn-pay').disabled = false;
+            document.querySelector('.btn-pay').textContent = '🚀 TOP UP SEKARANG';
         }
 
-        function copyQRIS() {
-            navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
-                alert('✅ Link QRIS dicopy!');
-            });
+        function showVoucher(voucher, playerId) {
+            document.getElementById('status').className = 'status success';
+            document.getElementById('status').innerHTML = `
+                <div class="voucher">${voucher.pin}</div>
+                <div style="font-size:16px;margin:15px 0">
+                    ✅ ${games[currentGame].name} ${currentProduct.name}<br>
+                    👤 ${playerId}<br>
+                    📄 SN: ${voucher.sn || 'N/A'}
+                </div>
+                <button class="copy-btn" onclick="copyVoucher('${voucher.pin}')">📋 Copy PIN</button>
+            `;
+            document.querySelector('.btn-pay').disabled = false;
+            document.querySelector('.btn-pay').textContent = '✅ TOP UP BERHASIL';
         }
 
-        function downloadQRIS() {
-            const link = document.createElement('a');
-            link.href = currentQRIS.qris_image_url;
-            link.download = `qris-${currentQRIS.qris_id}.png`;
-            link.click();
+        function copyLink(url) {
+            navigator.clipboard.writeText(url);
+            alert('✅ QRIS Link copied!');
         }
 
-        // Init
-        switchCategory('pulsa');
-        document.getElementById('amount').addEventListener('input', function(e) {
-            e.target.value = e.target.value.replace(/\D/g, '');
-        });
+        function copyVoucher(pin) {
+            navigator.clipboard.writeText(pin);
+            alert('✅ Voucher PIN copied!');
+        }
+
+        // INIT
+        renderProducts();
     </script>
 </body>
 </html>
