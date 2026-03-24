@@ -24,9 +24,6 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .qris-img{max-width:280px;width:100%;border-radius:15px;margin:20px auto;display:block}
 .info{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:20px 0}
 .info-item{background:rgba(255,255,255,.3);padding:10px 20px;border-radius:25px;font-size:15px}
-.progress-bar{width:100%;height:8px;background:#eee;border-radius:4px;margin:15px 0;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#56ab2f,#a8e6cf);width:0%;transition:width .3s}
-.counter{text-align:center;font-size:18px;font-weight:600;color:#333;margin:15px 0}
 .loading{display:none;text-align:center;padding:30px}
 .spinner{width:50px;height:50px;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
@@ -37,27 +34,23 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <div class="container">
 <div class="header">
 <h1>🚀 QRIS Auto Gen</h1>
-<p>Min Rp100 | Show #3/#4 Only</p>
+<p>Min Rp100 | Clean UI</p>
 </div>
 <div class="content">
 <div>
 <label>💰 Nominal (Rp)</label>
 <input type="number" id="amount" min="100" placeholder="Min Rp100">
 <div class="btn-group">
-<button class="btn-gen" onclick="startAuto()">⚡ Auto 5x</button>
+<button class="btn-gen" onclick="startAuto()">⚡ Generate</button>
 <button class="btn-stop" onclick="stopAuto()" id="btnStop" style="display:none">⏹️ Stop</button>
 </div>
-<div class="progress-bar" id="progress" style="display:none">
-<div class="progress-fill" id="progFill"></div>
-</div>
-<div class="counter" id="counter" style="display:none"></div>
 </div>
 <div class="loading" id="loading">
 <div class="spinner"></div>
-<p id="loadingText">Generating...</p>
+<p id="loadingText">Processing...</p>
 </div>
 <div class="qris-result" id="qrisResult">
-<h2 id="title">QRIS #3/4 (Pending)</h2>
+<h2 id="title">QRIS (Pending)</h2>
 <img id="qrisImg" class="qris-img" alt="QRIS">
 <div class="info" id="info"></div>
 <button class="btn-cancel" onclick="cancelQRIS()" id="btnCancel" style="width:100%;margin-top:15px">❌ Cancel</button>
@@ -65,14 +58,13 @@ button:disabled{opacity:.6;cursor:not-allowed}
 </div>
 </div>
 <script>
-const TOKEN='cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';const API='https://api.qrispy.id';let currentQRIS=null;let autoActive=false;let count=0;let qrisList=[];let interval;
+const TOKEN='cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';const API='https://api.qrispy.id';let currentQRIS=null;let autoActive=false;let qrisList=[];let interval;
 const formatRp=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
-async function genQRIS(){const amt=parseInt(document.getElementById('amount').value);if(!amt||amt<100){alert('Min Rp100');return null}document.getElementById('loading').style.display='block';document.getElementById('loadingText').textContent=`Gen #${count+1}/5...`;try{const res=await fetch(`${API}/api/payment/qris/generate`,{method:'POST',headers:{'X-API-Token':TOKEN,'Content-Type':'application/json'},body:JSON.stringify({amount:amt})});const data=await res.json();if(data.status==='success'){const qris=data.data;qrisList.push(qris);count++;updateUI();return qris}else throw data.message}catch(e){alert('Error: '+e);return null}finally{document.getElementById('loading').style.display='none'}}
+async function genQRIS(){const amt=parseInt(document.getElementById('amount').value);if(!amt||amt<100){alert('Min Rp100');return null}document.getElementById('loading').style.display='block';document.getElementById('loadingText').textContent='Processing...';try{const res=await fetch(`${API}/api/payment/qris/generate`,{method:'POST',headers:{'X-API-Token':TOKEN,'Content-Type':'application/json'},body:JSON.stringify({amount:amt})});const data=await res.json();if(data.status==='success'){const qris=data.data;qrisList.push(qris);return qris}else throw data.message}catch(e){alert('Error: '+e);return null}finally{document.getElementById('loading').style.display='none'}}
 async function autoCancel(qrisId){try{fetch(`${API}/api/payment/qris/${qrisId}/cancel`,{method:'POST',headers:{'X-API-Token':TOKEN}}).catch(()=>{})}catch(e){}}
-async function startAuto(){if(autoActive)return;autoActive=true;qrisList=[];count=0;document.querySelector('.btn-gen').disabled=true;document.getElementById('btnStop').style.display='block';document.getElementById('progress').style.display='block';document.getElementById('counter').style.display='block';document.getElementById('qrisResult').style.display='none';for(let i=0;i<5;i++){if(!autoActive)break;const qris=await genQRIS();if(qris){if(count===1||count===2||count===5){await autoCancel(qris.qris_id)}if(count===3||count===4){currentQRIS=qris;displayQRIS(qris,count)}}if(count===5)break}autoActive=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';if(currentQRIS)startCheck()}
+async function startAuto(){if(autoActive)return;autoActive=true;document.querySelector('.btn-gen').disabled=true;document.getElementById('btnStop').style.display='block';document.getElementById('qrisResult').style.display='none';qrisList=[];for(let i=0;i<5;i++){if(!autoActive)break;const qris=await genQRIS();if(qris){if(i===0||i===2||i===4){await autoCancel(qris.qris_id)}else{currentQRIS=qris;displayQRIS(qris,i+1)}}}autoActive=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';if(currentQRIS)startCheck()}
 function stopAuto(){autoActive=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';clearInterval(interval);qrisList.forEach(q=>autoCancel(q.qris_id))}
-function updateUI(){document.getElementById('counter').innerHTML=`✅ <strong>${count}</strong>/5`;document.getElementById('progFill').style.width=(count/5)*100+'%'}
-function displayQRIS(data,num){const res=document.getElementById('qrisResult');document.getElementById('qrisImg').src=data.qris_image_url;document.getElementById('title').textContent=`QRIS #${num} (Pending)`;document.getElementById('info').innerHTML=`<div class="info-item">💰 ${formatRp(data.amount)}</div><div class="info-item">🆔 ${data.qris_id}</div><div class="info-item">⏰ ${new Date(data.expired_at).toLocaleString('id-ID')}</div>`;res.style.display='block';document.getElementById('btnCancel').style.display='block';res.scrollIntoView()}
+function displayQRIS(data,num){const res=document.getElementById('qrisResult');document.getElementById('qrisImg').src=data.qris_image_url;document.getElementById('title').textContent='QRIS (Pending)';document.getElementById('info').innerHTML=`<div class="info-item">💰 ${formatRp(data.amount)}</div><div class="info-item">🆔 ${data.qris_id}</div><div class="info-item">⏰ ${new Date(data.expired_at).toLocaleString('id-ID')}</div>`;res.style.display='block';document.getElementById('btnCancel').style.display='block';res.scrollIntoView()}
 async function cancelQRIS(){if(!currentQRIS)return;await autoCancel(currentQRIS.qris_id);document.getElementById('title').textContent='❌ Cancelled';document.getElementById('btnCancel').style.display='none';clearInterval(interval)}
 function startCheck(){clearInterval(interval);interval=setInterval(checkStatus,2500)}
 async function checkStatus(){if(!currentQRIS)return;try{const res=await fetch(`${API}/api/payment/qris/${currentQRIS.qris_id}/status`,{headers:{'X-API-Token':TOKEN}});const data=await res.json();if(data.status&&data.status!=='pending'){if(data.status==='paid'){document.getElementById('qrisResult').style.background='linear-gradient(135deg,#56ab2f,#a8e6cf)';document.getElementById('title').textContent='🎉 PAID!'}else{document.getElementById('title').textContent='⏰ '+data.status.toUpperCase()}document.getElementById('btnCancel').style.display='none';clearInterval(interval)}}catch(e){}}
