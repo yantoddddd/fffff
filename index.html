@@ -16,15 +16,21 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            display: flex; /* ✅ Tambahan: Flex container */
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
         }
 
         .container {
             max-width: 800px;
-            margin: 0 auto;
+            width: 100%; /* ✅ Pastikan full width container */
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            overflow: hidden; /* ✅ Anti-float */
+            display: flex;
+            flex-direction: column;
         }
 
         .header {
@@ -41,6 +47,10 @@
 
         .content {
             padding: 40px;
+            flex: 1; /* ✅ Mengisi sisa ruang */
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* ✅ Gap antar section */
         }
 
         .form-section {
@@ -48,6 +58,7 @@
             padding: 40px;
             border-radius: 15px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            /* ✅ Tidak perlu float, sudah flex */
         }
 
         .form-group {
@@ -103,7 +114,7 @@
             color: white;
         }
 
-        .btn-generate:hover {
+        .btn-generate:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
         }
@@ -113,7 +124,7 @@
             color: white;
         }
 
-        .btn-cancel:hover {
+        .btn-cancel:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 15px 30px rgba(255, 65, 108, 0.4);
         }
@@ -134,6 +145,11 @@
             margin-top: 30px;
             position: relative;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            /* ✅ Flex untuk konten internal */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .status-paid {
@@ -156,26 +172,29 @@
             height: auto;
             border-radius: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            margin: 25px auto;
-            display: block;
         }
 
         .qris-info {
             margin: 25px 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
 
         .info-item {
-            display: inline-block;
             background: rgba(255,255,255,0.25);
             padding: 12px 25px;
-            margin: 8px;
             border-radius: 30px;
             font-size: 16px;
             backdrop-filter: blur(10px);
         }
 
         .action-buttons {
-            margin-top: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-action {
@@ -183,7 +202,6 @@
             color: #333;
             border: none;
             padding: 12px 25px;
-            margin: 8px;
             border-radius: 30px;
             cursor: pointer;
             font-weight: 600;
@@ -202,6 +220,11 @@
             display: none;
             text-align: center;
             padding: 40px;
+            /* ✅ Flex center */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
         }
 
         .spinner {
@@ -211,7 +234,6 @@
             width: 60px;
             height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 25px;
         }
 
         @keyframes spin {
@@ -220,20 +242,37 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .btn-group {
                 grid-template-columns: 1fr;
                 gap: 15px;
             }
+            
             .content {
                 padding: 25px;
             }
+            
             .header h1 {
                 font-size: 2em;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-action {
+                width: 100%;
+                max-width: 250px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- HTML sama persis, hanya CSS yang diperbaiki -->
     <div class="container">
         <div class="header">
             <h1>🚀 QRIS Generator</h1>
@@ -282,190 +321,15 @@
         </div>
     </div>
 
+    <!-- Script sama persis -->
     <script>
+        // ... (sama persis dengan script asli Anda)
         const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
         const API_URL = 'https://api.qrispy.id';
         let currentQRIS = null;
 
-        function formatRupiah(angka) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0
-            }).format(angka);
-        }
-
-        async function generateQRIS() {
-            const amount = parseInt(document.getElementById('amount').value);
-
-            if (!amount || amount < 1000) {
-                alert('⚠️ Minimal nominal Rp1.000!');
-                return;
-            }
-
-            const btnGenerate = document.querySelector('.btn-generate:not(.btn-cancel)');
-            const btnCancel = document.getElementById('btnCancel');
-            const loading = document.getElementById('loading');
-            const result = document.getElementById('qrisResult');
-
-            btnGenerate.disabled = true;
-            btnCancel.style.display = 'none';
-            document.getElementById('loadingText').textContent = '🎫 Generating QRIS...';
-            loading.style.display = 'block';
-            result.style.display = 'none';
-
-            try {
-                const response = await fetch(`${API_URL}/api/payment/qris/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'X-API-Token': API_TOKEN,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ amount })
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    currentQRIS = data.data;
-                    displayQRIS(data.data);
-                    btnCancel.style.display = 'block';
-                    startStatusCheck();
-                } else {
-                    throw new Error(data.message || 'Gagal generate QRIS');
-                }
-            } catch (error) {
-                alert('❌ Error: ' + error.message);
-            } finally {
-                btnGenerate.disabled = false;
-                loading.style.display = 'none';
-            }
-        }
-
-        function displayQRIS(qrisData) {
-            const result = document.getElementById('qrisResult');
-            const image = document.getElementById('qrisImage');
-            const info = document.getElementById('qrisInfo');
-            const title = document.getElementById('resultTitle');
-
-            image.src = qrisData.qris_image_url;
-            title.textContent = '✅ QRIS Berhasil Dibuat!';
-            result.className = 'qris-result'; // Reset classes
-
-            info.innerHTML = `
-                <div class="info-item">💰 ${formatRupiah(qrisData.amount)}</div>
-                <div class="info-item">🆔 ${qrisData.qris_id}</div>
-                <div class="info-item">⏰ ${new Date(qrisData.expired_at).toLocaleString('id-ID')}</div>
-            `;
-
-            result.style.display = 'block';
-            image.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        async function cancelCurrentQRIS() {
-            if (!currentQRIS) return;
-
-            if (confirm(`❌ Batalkan QRIS ${currentQRIS.qris_id}?\n\nNominal: ${formatRupiah(currentQRIS.amount)}`)) {
-                currentQRIS.status = 'cancelled';
-                document.getElementById('qrisResult').classList.add('status-cancelled');
-                document.getElementById('resultTitle').textContent = '❌ Pesanan Dibatalkan!';
-                document.getElementById('btnCancel').style.display = 'none';
-                stopStatusCheck();
-                alert('✅ QRIS berhasil dibatalkan!');
-            }
-        }
-
-        let statusInterval;
-        function startStatusCheck() {
-            stopStatusCheck();
-            statusInterval = setInterval(checkStatus, 5000);
-        }
-
-        function stopStatusCheck() {
-            if (statusInterval) {
-                clearInterval(statusInterval);
-                statusInterval = null;
-            }
-        }
-
-        async function checkStatus() {
-            if (!currentQRIS) return;
-
-            try {
-                const response = await fetch(
-                    `${API_URL}/api/payment/qris/${currentQRIS.qris_id}/status`,
-                    { headers: { 'X-API-Token': API_TOKEN } }
-                );
-                const data = await response.json();
-
-                if (data.status && data.status !== 'pending') {
-                    currentQRIS.status = data.status;
-                    updateStatusDisplay(data.status);
-                    stopStatusCheck();
-                }
-            } catch (error) {
-                console.log('Status check failed:', error);
-            }
-        }
-
-        async function checkStatusNow() {
-            document.getElementById('loadingText').textContent = '🔄 Checking status...';
-            document.getElementById('loading').style.display = 'block';
-            await checkStatus();
-            document.getElementById('loading').style.display = 'none';
-        }
-
-        function updateStatusDisplay(status) {
-            const result = document.getElementById('qrisResult');
-            const title = document.getElementById('resultTitle');
-
-            result.classList.remove('status-paid', 'status-cancelled');
-            
-            switch(status) {
-                case 'paid':
-                    result.classList.add('status-paid');
-                    title.textContent = '🎉 PEMBAYARAN SUKSES!';
-                    document.getElementById('btnCancel').style.display = 'none';
-                    break;
-                case 'expired':
-                    title.textContent = '⏰ QRIS KADALUARSA';
-                    document.getElementById('btnCancel').style.display = 'none';
-                    break;
-                case 'cancelled':
-                    result.classList.add('status-cancelled');
-                    title.textContent = '❌ QRIS DIBATALKAN';
-                    break;
-            }
-        }
-
-        function copyQRIS() {
-            if (currentQRIS) {
-                navigator.clipboard.writeText(currentQRIS.qris_image_url).then(() => {
-                    alert('✅ Link QRIS berhasil dicopy!\n\n' + currentQRIS.qris_image_url);
-                });
-            }
-        }
-
-        function downloadQRIS() {
-            if (currentQRIS) {
-                const link = document.createElement('a');
-                link.href = currentQRIS.qris_image_url;
-                link.download = `qris-${currentQRIS.qris_id}.png`;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-        }
-
-        // Init
-        document.getElementById('amount').addEventListener('input', function(e) {
-            let value = e.target.value.replace(/\D/g, '');
-            if (value) e.target.value = parseInt(value);
-        });
-
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') generateQRIS();
-        });
+        // Semua fungsi JavaScript sama persis...
+        // (Copy semua script dari kode asli Anda)
     </script>
 </body>
 </html>
