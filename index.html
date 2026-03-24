@@ -33,16 +33,16 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <body>
 <div class="container">
 <div class="header">
-<h1>🚀 QRIS Auto Gen</h1>
-<p>Min Rp100 | Clean UI</p>
+<h1>🚀 QRIS Generator</h1>
+<p>Min Rp100 | Auto 5x Clean</p>
 </div>
 <div class="content">
 <div>
 <label>💰 Nominal (Rp)</label>
 <input type="number" id="amount" min="100" placeholder="Min Rp100">
 <div class="btn-group">
-<button class="btn-gen" onclick="startAuto()">⚡ Generate</button>
-<button class="btn-stop" onclick="stopAuto()" id="btnStop" style="display:none">⏹️ Stop</button>
+<button class="btn-gen" onclick="generate()">⚡ Generate</button>
+<button class="btn-stop" onclick="stopGen()" id="btnStop" style="display:none">⏹️ Stop</button>
 </div>
 </div>
 <div class="loading" id="loading">
@@ -50,26 +50,29 @@ button:disabled{opacity:.6;cursor:not-allowed}
 <p id="loadingText">Processing...</p>
 </div>
 <div class="qris-result" id="qrisResult">
-<h2 id="title">QRIS (Pending)</h2>
+<h2 id="title">QRIS Ready</h2>
 <img id="qrisImg" class="qris-img" alt="QRIS">
 <div class="info" id="info"></div>
 <button class="btn-cancel" onclick="cancelQRIS()" id="btnCancel" style="width:100%;margin-top:15px">❌ Cancel</button>
+<div style="margin-top:20px">
+<button onclick="copyQRIS()" style="background:rgba(255,255,255,.9);color:#333;padding:10px 20px;border-radius:25px;margin:5px;cursor:pointer;border:none">📋 Copy</button>
+<button onclick="downloadQRIS()" style="background:rgba(255,255,255,.9);color:#333;padding:10px 20px;border-radius:25px;margin:5px;cursor:pointer;border:none">⬇️ Download</button>
+</div>
 </div>
 </div>
 </div>
 <script>
-const TOKEN='cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';const API='https://api.qrispy.id';let currentQRIS=null;let autoActive=false;let qrisList=[];let interval;
+const TOKEN='cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';const API='https://api.qrispy.id';let currentQRIS=null;let generating=false;let qrisList=[];
 const formatRp=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
-async function genQRIS(){const amt=parseInt(document.getElementById('amount').value);if(!amt||amt<100){alert('Min Rp100');return null}document.getElementById('loading').style.display='block';document.getElementById('loadingText').textContent='Processing...';try{const res=await fetch(`${API}/api/payment/qris/generate`,{method:'POST',headers:{'X-API-Token':TOKEN,'Content-Type':'application/json'},body:JSON.stringify({amount:amt})});const data=await res.json();if(data.status==='success'){const qris=data.data;qrisList.push(qris);return qris}else throw data.message}catch(e){alert('Error: '+e);return null}finally{document.getElementById('loading').style.display='none'}}
-async function autoCancel(qrisId){try{fetch(`${API}/api/payment/qris/${qrisId}/cancel`,{method:'POST',headers:{'X-API-Token':TOKEN}}).catch(()=>{})}catch(e){}}
-async function startAuto(){if(autoActive)return;autoActive=true;document.querySelector('.btn-gen').disabled=true;document.getElementById('btnStop').style.display='block';document.getElementById('qrisResult').style.display='none';qrisList=[];for(let i=0;i<5;i++){if(!autoActive)break;const qris=await genQRIS();if(qris){if(i===0||i===2||i===4){await autoCancel(qris.qris_id)}else{currentQRIS=qris;displayQRIS(qris,i+1)}}}autoActive=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';if(currentQRIS)startCheck()}
-function stopAuto(){autoActive=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';clearInterval(interval);qrisList.forEach(q=>autoCancel(q.qris_id))}
-function displayQRIS(data,num){const res=document.getElementById('qrisResult');document.getElementById('qrisImg').src=data.qris_image_url;document.getElementById('title').textContent='QRIS (Pending)';document.getElementById('info').innerHTML=`<div class="info-item">💰 ${formatRp(data.amount)}</div><div class="info-item">🆔 ${data.qris_id}</div><div class="info-item">⏰ ${new Date(data.expired_at).toLocaleString('id-ID')}</div>`;res.style.display='block';document.getElementById('btnCancel').style.display='block';res.scrollIntoView()}
-async function cancelQRIS(){if(!currentQRIS)return;await autoCancel(currentQRIS.qris_id);document.getElementById('title').textContent='❌ Cancelled';document.getElementById('btnCancel').style.display='none';clearInterval(interval)}
-function startCheck(){clearInterval(interval);interval=setInterval(checkStatus,2500)}
-async function checkStatus(){if(!currentQRIS)return;try{const res=await fetch(`${API}/api/payment/qris/${currentQRIS.qris_id}/status`,{headers:{'X-API-Token':TOKEN}});const data=await res.json();if(data.status&&data.status!=='pending'){if(data.status==='paid'){document.getElementById('qrisResult').style.background='linear-gradient(135deg,#56ab2f,#a8e6cf)';document.getElementById('title').textContent='🎉 PAID!'}else{document.getElementById('title').textContent='⏰ '+data.status.toUpperCase()}document.getElementById('btnCancel').style.display='none';clearInterval(interval)}}catch(e){}}
+async function genSingle(){const amt=parseInt(document.getElementById('amount').value);if(!amt||amt<100){alert('Min Rp100');return null}document.getElementById('loading').style.display='block';try{const res=await fetch(`${API}/api/payment/qris/generate`,{method:'POST',headers:{'X-API-Token':TOKEN,'Content-Type':'application/json'},body:JSON.stringify({amount:amt})});const data=await res.json();if(data.status==='success'){return data.data}else throw data.message}catch(e){alert('Error: '+e);return null}finally{document.getElementById('loading').style.display='none'}}
+async function generate(){if(generating)return;generating=true;document.querySelector('.btn-gen').disabled=true;document.getElementById('btnStop').style.display='block';document.getElementById('qrisResult').style.display='none';qrisList=[];for(let i=0;i<5;i++){if(!generating)break;const qris=await genSingle();if(qris){if(i!==1&&i!==3){continue}currentQRIS=qris;displayQRIS(qris)}}generating=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none'}
+function stopGen(){generating=false;document.querySelector('.btn-gen').disabled=false;document.getElementById('btnStop').style.display='none';qrisList.forEach(qris=>fetch(`${API}/api/payment/qris/${qris.qris_id}/cancel`,{method:'POST',headers:{'X-API-Token':TOKEN}}).catch(()=>{}))}
+function displayQRIS(data){document.getElementById('qrisImg').src=data.qris_image_url;document.getElementById('title').textContent='QRIS Ready';document.getElementById('info').innerHTML=`<div class="info-item">💰 ${formatRp(data.amount)}</div><div class="info-item">🆔 ${data.qris_id}</div><div class="info-item">⏰ ${new Date(data.expired_at).toLocaleString('id-ID')}</div>`;document.getElementById('qrisResult').style.display='block';document.getElementById('btnCancel').style.display='block';document.getElementById('qrisResult').scrollIntoView()}
+async function cancelQRIS(){if(!currentQRIS)return;await fetch(`${API}/api/payment/qris/${currentQRIS.qris_id}/cancel`,{method:'POST',headers:{'X-API-Token':TOKEN}});document.getElementById('title').textContent='❌ Cancelled';document.getElementById('btnCancel').style.display='none'}
+function copyQRIS(){if(currentQRIS)navigator.clipboard.writeText(currentQRIS.qris_image_url).then(()=>alert('✅ Link copied!'))}
+function downloadQRIS(){if(currentQRIS){const a=document.createElement('a');a.href=currentQRIS.qris_image_url;a.download=`qris-${currentQRIS.qris_id}.png`;a.click()}}
 document.getElementById('amount').addEventListener('input',e=>{e.target.value=e.target.value.replace(/\D/g,'')});
-document.addEventListener('keypress',e=>{if(e.key==='Enter')startAuto()});
+document.addEventListener('keypress',e=>{if(e.key==='Enter')generate()});
 </script>
 </body>
 </html>
