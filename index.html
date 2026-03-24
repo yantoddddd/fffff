@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -35,7 +35,7 @@
         }
 
         .header h1 {
-            font-size: 2.2em;
+            font-size: 2em;
             margin-bottom: 5px;
         }
 
@@ -48,6 +48,7 @@
             padding: 30px;
             border-radius: 15px;
             margin-bottom: 30px;
+            text-align: center;
         }
 
         input {
@@ -57,6 +58,7 @@
             border-radius: 12px;
             font-size: 18px;
             margin-bottom: 20px;
+            text-align: center;
         }
 
         .btn-generate {
@@ -73,35 +75,23 @@
 
         .btn-generate:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
         }
 
         .btn-generate:disabled {
             opacity: 0.6;
-            cursor: not-allowed;
         }
 
-        .results {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .qris-item {
+        .qris-result {
+            text-align: center;
+            padding: 30px;
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             border-radius: 15px;
-            padding: 20px;
             color: white;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: none;
+            margin-top: 20px;
         }
 
-        .qris-item.best {
-            border: 3px solid #ffd700;
-            background: linear-gradient(135deg, #feca57, #ff9ff3) !important;
-        }
-
-        .qris-item.paid {
+        .qris-result.paid {
             background: linear-gradient(135deg, #56ab2f, #a8e6cf) !important;
             animation: bounce 0.6s;
         }
@@ -112,37 +102,43 @@
         }
 
         .qris-img {
-            width: 100%;
-            height: 180px;
+            max-width: 100%;
+            height: 250px;
             object-fit: contain;
-            border-radius: 10px;
-            margin: 10px 0;
+            border-radius: 12px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
         }
 
-        .qris-id {
-            font-weight: bold;
-            font-size: 14px;
-            margin-bottom: 5px;
+        .best-fee {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #ffd700;
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
         }
 
-        .admin-fee {
-            font-size: 20px;
+        .fee-info {
+            font-size: 22px;
             font-weight: bold;
             color: #ffd700;
+            margin-bottom: 10px;
         }
 
         .status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
+            padding: 12px 24px;
+            background: rgba(255,193,7,0.3);
+            color: #856404;
+            border-radius: 25px;
             font-weight: bold;
-            margin: 8px 0;
             display: inline-block;
+            margin: 15px 0;
         }
 
-        .status.pending { background: rgba(255,193,7,0.3); color: #856404; }
-        .status.paid { background: rgba(40,167,69,0.4); color: white; }
-        .status.expired { background: rgba(108,117,125,0.3); color: white; }
+        .status.paid {
+            background: rgba(40,167,69,0.4);
+            color: white;
+        }
 
         .loading {
             text-align: center;
@@ -151,13 +147,13 @@
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 25px;
         }
 
         @keyframes spin {
@@ -165,10 +161,27 @@
             100% { transform: rotate(360deg); }
         }
 
-        @media (max-width: 768px) {
-            .results {
-                grid-template-columns: 1fr;
-            }
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn-action {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .btn-action:hover {
+            background: white;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -176,49 +189,69 @@
     <div class="container">
         <div class="header">
             <h1>QRIS GENERATOR</h1>
-            <p>Generate 6x - Auto Pilih Termurah</p>
+            <p>Auto Termurah dari 6x Generate</p>
         </div>
 
         <div class="content">
             <div class="form-section">
-                <input type="number" id="amount" placeholder="Nominal (Rp)" min="0">
-                <button class="btn-generate" onclick="generate6x()">GENERATE 6x</button>
+                <input type="number" id="amount" placeholder="Nominal">
+                <button class="btn-generate" onclick="generateBest()">GENERATE TERMUrah</button>
             </div>
 
             <div class="loading" id="loading">
                 <div class="spinner"></div>
-                <p id="loadingText">Loading...</p>
+                <p id="loadingText">Cek 6x API...</p>
             </div>
 
-            <div class="results" id="results"></div>
+            <div class="qris-result" id="qrisResult">
+                <div class="best-fee">
+                    <div class="fee-info" id="bestFee">Rp0</div>
+                    <div>Admin Fee TERMUrah!</div>
+                </div>
+                <img id="qrisImg" class="qris-img" src="">
+                <div id="amountDisplay"></div>
+                <div class="status pending" id="status">Pending</div>
+                
+                <div class="actions">
+                    <button class="btn-action" onclick="copyLink()">📋 Copy Link</button>
+                    <button class="btn-action" onclick="downloadImg()">⬇️ Download</button>
+                    <button class="btn-action" onclick="checkNow()">🔍 Check</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         const API_TOKEN = 'cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';
         const API_URL = 'https://api.qrispy.id';
-        let qrisData = [];
+        let bestQRIS = null;
 
         function formatRupiah(n) {
             return new Intl.NumberFormat('id-ID').format(n);
         }
 
-        async function generate6x() {
+        // ✅ GENERATE 6x & PILIH TERMUrah SAJA
+        async function generateBest() {
             const amount = parseInt(document.getElementById('amount').value) || 0;
             
             const btn = document.querySelector('.btn-generate');
             const loading = document.getElementById('loading');
-            const results = document.getElementById('results');
+            const result = document.getElementById('qrisResult');
 
             btn.disabled = true;
-            btn.textContent = 'Generating...';
+            btn.textContent = 'Cek 6x...';
             loading.style.display = 'block';
-            results.innerHTML = '';
+            result.style.display = 'none';
 
             try {
-                // ✅ GENERATE 6x PARALEL
-                const promises = Array.from({length: 6}, async (_, i) => {
+                document.getElementById('loadingText').textContent = 'Generate 1/6...';
+                
+                // ✅ TRY 6x RAPID FIRE
+                let candidates = [];
+                for (let i = 0; i < 6; i++) {
                     try {
+                        document.getElementById('loadingText').textContent = `Try ${i+1}/6...`;
+                        
                         const res = await fetch(`${API_URL}/api/payment/qris/generate`, {
                             method: 'POST',
                             headers: {
@@ -227,76 +260,104 @@
                             },
                             body: JSON.stringify({amount})
                         });
+                        
                         const data = await res.json();
-                        return data.status === 'success' ? {...data.data, tryIndex: i} : null;
-                    } catch {
-                        return null;
+                        if (data.status === 'success') {
+                            const adminFee = data.data.admin_fee || 999999;
+                            candidates.push({ ...data.data, adminFee, tryIndex: i });
+                        }
+                        
+                        // Delay kecil antar try
+                        await new Promise(r => setTimeout(r, 200));
+                        
+                    } catch(e) {
+                        console.log(`Try ${i+1} failed`);
                     }
-                });
+                }
 
-                const resultsData = (await Promise.all(promises)).filter(Boolean);
-                qrisData = resultsData.sort((a, b) => (a.admin_fee || 999) - (b.admin_fee || 999));
-
-                displayResults();
-                monitorAll();
+                // ✅ SORT & AMBIL TERMUrah
+                if (candidates.length === 0) {
+                    throw new Error('Tidak ada QRIS berhasil');
+                }
+                
+                candidates.sort((a, b) => a.adminFee - b.adminFee);
+                bestQRIS = candidates[0]; // ✅ PILIH #1 TERMUrah
+                
+                displayBestQRIS();
+                startMonitoring();
 
             } catch(e) {
-                alert('Error: ' + e.message);
+                alert('Gagal: ' + e.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = 'GENERATE 6x';
+                btn.textContent = 'GENERATE TERMUrah';
                 loading.style.display = 'none';
             }
         }
 
-        function displayResults() {
-            const results = document.getElementById('results');
-            results.innerHTML = qrisData.map((qris, i) => `
-                <div class="qris-item ${i === 0 ? 'best' : ''}" id="qris-${qris.qris_id}">
-                    <div class="qris-id">#${qris.tryIndex + 1}</div>
-                    ${i === 0 ? '<div style="color:#ffd700;font-weight:bold;">TERMURAH</div>' : ''}
-                    <img src="${qris.qris_image_url}" class="qris-img">
-                    <div>${formatRupiah(qris.amount)}</div>
-                    <div class="admin-fee">${formatRupiah(qris.admin_fee || 0)}</div>
-                    <div class="status pending">Pending</div>
-                </div>
-            `).join('');
+        function displayBestQRIS() {
+            const result = document.getElementById('qrisResult');
+            document.getElementById('bestFee').textContent = `Rp${bestQRIS.adminFee}`;
+            document.getElementById('qrisImg').src = bestQRIS.qris_image_url;
+            document.getElementById('amountDisplay').textContent = formatRupiah(bestQRIS.amount);
+            document.getElementById('status').textContent = 'Pending';
+            document.getElementById('status').className = 'status pending';
+            
+            result.style.display = 'block';
+            result.scrollIntoView({behavior: 'smooth'});
         }
 
-        async function monitorAll() {
-            for (const qris of qrisData) {
-                monitorSingle(qris.qris_id);
-            }
-        }
-
-        async function monitorSingle(qrisId) {
-            let attempts = 0;
-            while (attempts < 20) { // 3 menit max
+        let monitorInterval;
+        function startMonitoring() {
+            let checks = 0;
+            monitorInterval = setInterval(async () => {
+                checks++;
                 try {
-                    const res = await fetch(`${API_URL}/api/payment/qris/${qrisId}/status`, {
+                    const res = await fetch(`${API_URL}/api/payment/qris/${bestQRIS.qris_id}/status`, {
                         headers: {'X-API-Token': API_TOKEN}
                     });
                     const data = await res.json();
                     
-                    const card = document.getElementById(`qris-${qrisId}`);
-                    const statusEl = card.querySelector('.status');
+                    const statusEl = document.getElementById('status');
                     
                     if (data.status === 'paid') {
                         statusEl.textContent = 'PAID ✅';
                         statusEl.className = 'status paid';
-                        card.classList.add('paid');
-                        alert(`✅ PAID! QRIS ${qrisId.slice(-6)}`);
+                        document.querySelector('.qris-result').classList.add('paid');
+                        clearInterval(monitorInterval);
+                        alert(`🎉 PAID! Admin fee: Rp${bestQRIS.adminFee}`);
                         return;
                     } else if (data.status === 'expired') {
                         statusEl.textContent = 'Expired';
-                        statusEl.className = 'status expired';
+                        statusEl.className = 'status';
+                        clearInterval(monitorInterval);
                         return;
                     }
                 } catch(e) {}
                 
-                attempts++;
-                await new Promise(r => setTimeout(r, 9000)); // 9 detik
-            }
+                if (checks > 20) clearInterval(monitorInterval);
+            }, 8000);
+        }
+
+        function copyLink() {
+            navigator.clipboard.writeText(bestQRIS.qris_image_url);
+            alert('✅ Link QRIS dicopy!');
+        }
+
+        function downloadImg() {
+            const a = document.createElement('a');
+            a.href = bestQRIS.qris_image_url;
+            a.download = `qris-${bestQRIS.qris_id.slice(-6)}.png`;
+            a.click();
+        }
+
+        async function checkNow() {
+            document.getElementById('loadingText').textContent = 'Checking...';
+            document.getElementById('loading').style.display = 'block';
+            await fetch(`${API_URL}/api/payment/qris/${bestQRIS.qris_id}/status`, {
+                headers: {'X-API-Token': API_TOKEN}
+            });
+            document.getElementById('loading').style.display = 'none';
         }
 
         document.getElementById('amount').addEventListener('input', function(e) {
@@ -304,7 +365,7 @@
         });
 
         document.addEventListener('keypress', e => {
-            if (e.key === 'Enter') generate6x();
+            if (e.key === 'Enter') generateBest();
         });
     </script>
 </body>
