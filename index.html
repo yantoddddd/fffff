@@ -7,18 +7,8 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:sans-serif;background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;padding:20px}
-.container{max-width:600px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1);position:relative;overflow:hidden}
-
-/* Hamburger Menu */
-.header{position:relative;background:linear-gradient(135deg,#ff6b6b,#feca57);color:white;padding:25px;text-align:center;border-radius:20px 20px 0 0}
-.hamburger{position:absolute;left:20px;top:25px;z-index:1000;background:none;border:none;color:white;font-size:24px;cursor:pointer;padding:10px;transition:all .3s}
-.hamburger:hover{transform:scale(1.1)}
-.menu-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.5);z-index:999;display:none;animation:fadeIn .3s}
-.menu-panel{position:fixed;top:0;left:-300px;width:300px;height:100%;background:linear-gradient(135deg,#667eea,#764ba2);z-index:1000;padding:80px 30px 30px;transition:all .4s cubic-bezier(0.68,-0.55,0.265,1.55);box-shadow:5px 0 30px rgba(0,0,0,.3)}
-.menu-panel.open{left:0}
-.menu-item{display:block;padding:20px 0;color:white;text-decoration:none;font-size:18px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.1);transition:all .3s}
-.menu-item:hover{background:rgba(255,255,255,.1);padding-left:20px;border-radius:10px}
-.menu-close{position:absolute;top:20px;right:20px;background:none;border:none;color:white;font-size:28px;cursor:pointer}
+.container{max-width:600px;margin:0 auto;background:white;border-radius:20px;box-shadow:0 20px 40px rgba(0,0,0,.1)}
+.header{background:linear-gradient(135deg,#ff6b6b,#feca57);color:white;padding:25px;text-align:center;border-radius:20px 20px 0 0}
 h1{font-size:2em;margin:0}
 .content{padding:30px}
 label{display:block;margin-bottom:10px;font-weight:600}
@@ -36,35 +26,15 @@ button:disabled{opacity:.6;cursor:not-allowed}
 .countdown{background:linear-gradient(135deg,#ff6b6b,#ff8e8e);padding:15px;border-radius:15px;margin:15px 0;font-size:18px;font-weight:600}
 .expired{animation:pulse 1s infinite}
 @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .loading{display:none;text-align:center;padding:30px}
 .spinner{width:50px;height:50px;border:4px solid #f3f3f3;border-top:4px solid #667eea;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-@media(max-width:600px){
-    .menu-panel{width:100%;left:-100%}
-    .info{flex-direction:column;align-items:center}
-    .hamburger{left:15px;top:20px}
-}
+@media(max-width:600px){.info{flex-direction:column;align-items:center}}
 </style>
 </head>
 <body>
-<!-- Menu Overlay -->
-<div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
-
-<!-- Menu Panel -->
-<div class="menu-panel" id="menuPanel">
-    <button class="menu-close" onclick="closeMenu()">×</button>
-    <a href="/" class="menu-item">🏠 QRIS Generator</a>
-    <a href="/topup-dana" class="menu-item">💰 Topup Dana</a>
-    <a href="#" class="menu-item" onclick="showBalance()">💳 Saldo Saya</a>
-    <a href="#" class="menu-item" onclick="showHistory()">📋 Riwayat</a>
-    <hr style="border:0;height:1px;background:rgba(255,255,255,.2);margin:20px 0">
-    <a href="#" class="menu-item" style="font-size:14px;color:rgba(255,255,255,.7)">ℹ️ Bantuan</a>
-</div>
-
 <div class="container">
 <div class="header">
-<button class="hamburger" id="hamburgerBtn" onclick="toggleMenu()">☰</button>
 <h1>🚀 QRIS Generator</h1>
 <p>Min Rp100 | Auto Renew</p>
 </div>
@@ -95,31 +65,8 @@ button:disabled{opacity:.6;cursor:not-allowed}
 </div>
 </div>
 </div>
-
 <script>
 const TOKEN='cki_MDT3cC14ASTcV9yCcZOEOROZFqVgNvZlWjsC5ofjrp3x2DBe';const API='https://api.qrispy.id';let currentQRIS=null;let generating=false;let allQRIS=[];let countdownInterval;
-
-// Menu Functions
-function toggleMenu() {
-    document.getElementById('menuPanel').classList.toggle('open');
-    document.getElementById('menuOverlay').style.display = 'block';
-}
-
-function closeMenu() {
-    document.getElementById('menuPanel').classList.remove('open');
-    document.getElementById('menuOverlay').style.display = 'none';
-}
-
-function showBalance() {
-    alert('💰 Saldo Anda: Rp 250.000\n\nFitur lengkap segera hadir!');
-    closeMenu();
-}
-
-function showHistory() {
-    alert('📋 Riwayat QRIS\n\nFitur lengkap segera hadir!');
-    closeMenu();
-}
-
 const formatRp=n=>new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',minimumFractionDigits:0}).format(n);
 function formatTime(seconds){const h=Math.floor(seconds/3600);const m=Math.floor((seconds%3600)/60);const s=seconds%60;return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`}
 function startCountdown(expiredAt){clearInterval(countdownInterval);const updateTimer=()=>{const now=new Date().getTime();const distance=expiredAt-now;if(distance<0){clearInterval(countdownInterval);document.getElementById('timer').textContent='00:00:00';document.getElementById('timer').parentElement.classList.add('expired');setTimeout(generate,1000);return}document.getElementById('timer').textContent=formatTime(Math.floor(distance/1000))};updateTimer();countdownInterval=setInterval(updateTimer,1000)}
